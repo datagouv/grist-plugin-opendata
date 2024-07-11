@@ -13,13 +13,15 @@
 import { defineComponent, ref, onMounted } from 'vue';
 import { useStore } from 'vuex';
 
+const SESSION_STORAGE_TOKEN_KEY = 'apiToken';
+
 export default defineComponent({
   name: 'TokenForm',
   components: { },
   setup() {
 
     const store = useStore();
-    const token = ref('');
+    const token = ref(sessionStorage.getItem(SESSION_STORAGE_TOKEN_KEY) || '');
     const isTokenSet = ref(false);
     const datagouvUrl = process.env.VUE_APP_DATAGOUV_PUBLISH_URL;
     const urlDisplay = ref("")
@@ -29,6 +31,7 @@ export default defineComponent({
     });
 
     const validateToken = async () => { 
+      sessionStorage.setItem(SESSION_STORAGE_TOKEN_KEY, token.value);
       const response = await fetch(datagouvUrl + "/api/1/me/", {
         method: 'GET',
         headers: {
