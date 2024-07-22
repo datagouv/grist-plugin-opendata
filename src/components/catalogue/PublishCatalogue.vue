@@ -184,6 +184,7 @@ export default defineComponent({
     const recordToDataset = ref<Record | null>(null);
     const showCatalog = ref(true)
     const showDataset = ref(true)
+    const tokenInfo = ref({ token: "" })
     const store = useStore();
 
     onMounted(async () => {
@@ -192,6 +193,8 @@ export default defineComponent({
             requiredAccess: 'full',
             columns: []
         });
+
+        tokenInfo.value = await window.grist.docApi.getAccessToken({readOnly: false});
 
         docId.value = await window.grist.docApi.getDocName();
         const token = await window.grist.getOption('token_datagouv');
@@ -202,7 +205,7 @@ export default defineComponent({
           isToken.value = true
         }
 
-        let url = gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Catalogue/records"
+        let url = gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Catalogue/records?auth=" + tokenInfo.value.token
         let data = await queryUrl(url)
         if (data.records.length == 0) {
             isCatalogue.value = false
@@ -236,7 +239,7 @@ export default defineComponent({
     });
 
     watch(shouldPublishDataset, async () => {
-        let url = gristUrl + "/api/docs/" + docId.value + "/tables/Catalogue/records"
+        let url = gristUrl + "/api/docs/" + docId.value + "/tables/Catalogue/records?auth=" + tokenInfo.value.token
         let data = await queryUrl(url)
         records.value = data.records
         recordToDataset.value = null;
@@ -260,8 +263,8 @@ export default defineComponent({
 
     const publishDataset = async () => {
         if (recordToDataset.value && recordToDataset.value.fields) {
-            let frequencyData = await queryUrl(gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Frequency/records?filter={\"id\": [" + recordToDataset.value.fields.Frequence_MaJ + "]}")
-            let licenceData = await queryUrl(gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Licence/records?filter={\"id\": [" + recordToDataset.value.fields.Licence + "]}")
+            let frequencyData = await queryUrl(gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Frequency/records?filter={\"id\": [" + recordToDataset.value.fields.Frequence_MaJ + "]}&auth=" + tokenInfo.value.token)
+            let licenceData = await queryUrl(gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Licence/records?filter={\"id\": [" + recordToDataset.value.fields.Licence + "]}&auth=" + tokenInfo.value.token)
             let licence = null;
             let frequency = null;
             if (licenceData.records.length > 0){
@@ -294,12 +297,11 @@ export default defineComponent({
                     JSON.stringify(body)
                 )      
                 datasetId.value = data.id
-                const tokenInfo = await window.grist.docApi.getAccessToken({readOnly: false});
 
                 if (recordToDataset.value && recordToDataset.value.id) {
                     
                     data = await queryUrl(
-                        gristUrl + "/api/docs/" + docId.value + "/tables/Catalogue/records?auth=" + tokenInfo.token,
+                        gristUrl + "/api/docs/" + docId.value + "/tables/Catalogue/records?auth=" + tokenInfo.value.token,
                         'PATCH',
                         { 'Content-Type': 'application/json' },
                         JSON.stringify({
@@ -359,7 +361,7 @@ export default defineComponent({
         )
 
         data = await queryUrl(
-            gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Catalogue/records",
+            gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Catalogue/records?auth=" + tokenInfo.value.token,
             'POST',
             headers,
             JSON.stringify({

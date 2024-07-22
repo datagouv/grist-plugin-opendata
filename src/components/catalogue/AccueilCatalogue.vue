@@ -92,8 +92,10 @@ export default defineComponent({
     const showResults = ref(false)
     const showSearchOrgaDiv = ref(false)
     const retrievingProcessStep = ref(0)
+    const tokenInfo = ref({ token: "" })
     onMounted(async () => {
         docId.value = await window.grist.docApi.getDocName();
+        tokenInfo.value = await window.grist.docApi.getAccessToken({readOnly: false});
     });
 
     window.grist.ready({
@@ -163,7 +165,7 @@ export default defineComponent({
             orgaSiret = ""
         }
         let orgaToCreate = true
-        url = gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Organisation/records"
+        url = gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Organisation/records?auth=" + tokenInfo.value.token
         data = await queryUrl(url)
         data.records.forEach((item: { fields: { Nom: any; }; }) => {
             if (item.fields.Nom == orgaName) {
@@ -173,7 +175,7 @@ export default defineComponent({
 
         if (orgaToCreate) {
             data = await queryUrl(
-                gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Organisation/records",
+                gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Organisation/records?auth=" + tokenInfo.value.token,
                 'POST',
                 headers,
                 JSON.stringify({
@@ -191,11 +193,11 @@ export default defineComponent({
 
         // 2 - Récupérer les tables frequency, couverture geo et licence et format
 
-        const frequencies = await utilsGetMetadata(gristUrl, docId.value, "Ref_Frequency")
-        const geocoverages = await utilsGetMetadata(gristUrl, docId.value, "Ref_GeographicalCoverage")
-        const licences = await utilsGetMetadata(gristUrl, docId.value, "Ref_Licence")
+        const frequencies = await utilsGetMetadata(gristUrl, docId.value, "Ref_Frequency", tokenInfo.value.token)
+        const geocoverages = await utilsGetMetadata(gristUrl, docId.value, "Ref_GeographicalCoverage", tokenInfo.value.token)
+        const licences = await utilsGetMetadata(gristUrl, docId.value, "Ref_Licence", tokenInfo.value.token)
         //specific process for formats
-        url = gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Format/records"
+        url = gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Format/records?auth=" + tokenInfo.value.token
         data = await queryUrl(url)
         const formats: any = {};
         data.records.forEach((item: { fields: { valeur: string|number; }; id: any; }) => {
@@ -259,7 +261,7 @@ export default defineComponent({
             
             if (arr.length > 0) {
                 data = await queryUrl(
-                    gristUrl + "/api/docs/" + docId.value + "/tables/Catalogue/records",
+                    gristUrl + "/api/docs/" + docId.value + "/tables/Catalogue/records?auth=" + tokenInfo.value.token,
                     'POST',
                     headers,
                     JSON.stringify({ "records": arr })

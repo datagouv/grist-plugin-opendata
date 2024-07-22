@@ -11,8 +11,8 @@ export const queryUrl = async(url: string, method: string = 'GET', headers = {},
     return data;
 }
 
-export const utilsGetMetadata = async (gristUrl: string, docId: any, table: string) => {
-    const url = `${gristUrl}/api/docs/${docId}/tables/${table}/records`;
+export const utilsGetMetadata = async (gristUrl: string, docId: any, table: string, token: string) => {
+    const url = `${gristUrl}/api/docs/${docId}/tables/${table}/records?auth=${token}`;
     const data = await queryUrl(url);
     const taxonomies: any = {};
     data.records.forEach((item: { fields: any; id_technique: string; valeur: any; }) => {
