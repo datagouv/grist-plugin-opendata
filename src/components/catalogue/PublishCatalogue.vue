@@ -147,7 +147,7 @@ import { defineComponent, onMounted, ref, computed, watch } from 'vue';
 import HeaderWidget from '../HeaderWidget.vue';
 import TokenForm from '../TokenForm.vue';
 import { useStore } from 'vuex';
-import { queryUrl, utilsGetMetadata } from '../../utils';
+import { queryUrl } from '../../utils';
 
 interface Record {
     id: number;
