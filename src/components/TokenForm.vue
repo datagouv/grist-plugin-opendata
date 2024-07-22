@@ -1,5 +1,4 @@
 <template>
-    <span>Bienvenue sur le widget officiel data.gouv.fr intégré dans Grist.</span><br />
     <span>Pour interfacer correctement votre compte Grist avec data.gouv.fr, merci de saisir ci-dessous votre clé d'api d'accès data.gouv.fr</span>
     <div class="saisie-token">
       <input class="fr-input" type="text" id="text-input-text" name="text-input-text" v-model="token">
