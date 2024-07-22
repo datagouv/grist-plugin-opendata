@@ -363,7 +363,7 @@ export default defineComponent({
         data = await queryUrl(
             gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Catalogue/records?auth=" + tokenInfo.value.token,
             'POST',
-            {},
+            { 'Content-Type': 'application/json' },
             JSON.stringify({
                 records: [
                     {
