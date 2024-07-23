@@ -267,11 +267,15 @@ export default defineComponent({
             let licenceData = await queryUrl(gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Licence/records?filter={\"id\": [" + recordToDataset.value.fields.Licence + "]}&auth=" + tokenInfo.value.token)
             let licence = null;
             let frequency = null;
+            let tags = null;
             if (licenceData.records.length > 0){
                 licence = licenceData.records[0]["fields"]["id_technique"]
             }
             if (frequencyData.records.length > 0){
                 frequency = frequencyData.records[0]["fields"]["id_technique"]
+            }
+            if (recordToDataset.value.fields.Mots_Cles.filter(item => item !== "L").length > 0) {
+                tags = recordToDataset.value.fields.Mots_Cles.filter(item => item !== "L")
             }
             if (recordToDataset.value.fields.Description != '') {
                 let body = {
@@ -279,7 +283,7 @@ export default defineComponent({
                     description: recordToDataset.value.fields.Description,
                     frequency: frequency,
                     license: licence,
-                    tags: recordToDataset.value.fields.Mots_Cles.filter(item => item !== "L"),
+                    tags: tags,
                     private: true,
                     organization: {
                         id: publishOrga.value
