@@ -42,8 +42,8 @@ export default defineComponent({
         store.dispatch('updateToken', token.value);
         store.dispatch('updateProfile', data);
         isTokenSet.value = true;
-        window.grist.setOption('token_datagouv', token.value);
-        window.grist.setOption('profile_datagouv', data);
+        //window.grist.setOption('token_datagouv', token.value);
+        //window.grist.setOption('profile_datagouv', data);
       }
     }
 
