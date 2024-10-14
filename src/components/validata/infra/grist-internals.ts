@@ -176,14 +176,37 @@ export class ColumnsInfo {
 }
 
 export function addFillColorToWidgetOptions(
-  widgetOptions: WidgetOptions | undefined
+  widgetOptions: WidgetOptions | undefined,
+  position: number
 ): WidgetOptions {
   widgetOptions ??= {};
   widgetOptions.rulesOptions ??= [];
 
-  widgetOptions.rulesOptions.push({ fillColor: "#FECBCC" });
+  widgetOptions.rulesOptions = _insertAtPosition(
+    position,
+    { fillColor: "#FECBCC" },
+    widgetOptions.rulesOptions
+  );
 
   return widgetOptions;
+}
+
+function _insertAtPosition(
+  position: number,
+  rulesOption: RulesOption,
+  arr: RulesOption[]
+): RulesOption[] {
+  if (position < arr.length) {
+    console.error(
+      "Attempt to add a rule where one already exists. This is an internal error"
+    );
+  } else if (position > arr.length) {
+    // fill with empty objects to align rulesOption with rule
+    arr = arr.concat(new Array(position - arr.length).fill({}));
+  }
+
+  arr.push(rulesOption);
+  return arr;
 }
 
 export function deleteFillColorFromWidgetOptions(

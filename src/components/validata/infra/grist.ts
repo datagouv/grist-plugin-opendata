@@ -244,7 +244,12 @@ export class GristService implements IGrist {
     columnsInfo: ColumnsInfo
   ): UpdateRecordAction {
     const widgetOptions = columnsInfo.getWidgetOptions(id);
-    const newWidgetOptions = addFillColorToWidgetOptions(widgetOptions);
+
+    const position = (columnsInfo.getRules(id) || []).length;
+    const newWidgetOptions = addFillColorToWidgetOptions(
+      widgetOptions,
+      position
+    );
 
     return [
       "UpdateRecord",
