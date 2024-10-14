@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@gouvfr/dsfr": "^1.12.1",
     "@gouvminint/vue-dsfr": "^5.17.2",
     "core-js": "^3.8.3",
     "grist-api": "^0.1.7",

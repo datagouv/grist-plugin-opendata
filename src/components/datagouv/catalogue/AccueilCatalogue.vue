@@ -51,7 +51,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
 import HeaderWidget from '../HeaderWidget.vue';
-import { queryUrl, utilsGetMetadata } from '../../utils'; // Import functions from utils
+import { queryUrl, utilsGetMetadata } from '../../../utils'; // Import functions from utils
 
 interface Mapping {
     Titre: string;
@@ -127,7 +127,7 @@ export default defineComponent({
         )
         let items: any[] = []
         result.data.forEach((item: {
-          id: any; name: any; 
+          id: any; name: any;
         }) => {
             items.push({ "name": item.name, "id": item.id });
         })
@@ -136,7 +136,7 @@ export default defineComponent({
       } catch (error) {
         console.error("Error datagouv search", error);
         throw error;
-      }     
+      }
     }
 
     const debouncedSearch = debounce(searchOrga, 500);
@@ -154,7 +154,7 @@ export default defineComponent({
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         }
-        
+
         // 1 - Regarder si l'orga est présente dans la table orga. Si non, l'ajouter et ajouter son siret
 
         let url = datagouvUrl + "/api/1/organizations/" + dataGouvOrganizationId.value
@@ -226,7 +226,7 @@ export default defineComponent({
                         } else if (mappedKey == "Frequence_MaJ") {
                             object[mappedKey] = frequencies[item[mapping[mappedKey]]];
                         } else if (mappedKey == "Format") {
-                            let formatsList = ["L"] 
+                            let formatsList = ["L"]
                             item.resources.forEach((item2: { format: string; }) => {
                                 if (item2.format && formats[item2.format]) {
                                     formatsList.push(formats[item2.format])
@@ -258,7 +258,7 @@ export default defineComponent({
                 }
                 arr.push({ fields: object });
             });
-            
+
             if (arr.length > 0) {
                 data = await queryUrl(
                     gristUrl + "/api/docs/" + docId.value + "/tables/Catalogue/records?auth=" + tokenInfo.value.token,
@@ -304,7 +304,7 @@ export default defineComponent({
     padding-bottom: 5px;
 }
 
-.searchItem{    
+.searchItem{
     margin-left: 20px;
     margin-right: 20px;
     min-height: 30px;
