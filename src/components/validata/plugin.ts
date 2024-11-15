@@ -4,19 +4,20 @@ import type { IGrist, IValidata } from "./spi";
 import {
   type ValidationReport,
   type Error,
-  relatesToDataStructure,
-  relatesToDataBody,
+  type ErrorsByType,
   relatesToRow,
 } from "./types/report";
 import type { TableData } from "./types/records";
 
-import { ref } from "vue";
+import { reactive } from "vue";
 
 import { useValidationReport } from "./useValidationReport";
 
-export const structureErrors = ref<Error[]>([]);
-export const bodyErrors = ref<Error[]>([]);
-export const rowErrors = ref<Error[]>([]);
+export const errors = reactive<ErrorsByType>({
+  structureErrors: [],
+  rowErrors: [],
+  selectedRowErrors: [],
+});
 
 /** Validate data against the user provided schema.
  *
@@ -64,17 +65,19 @@ function storeValidationReport(report: ValidationReport) {
 /** Given a report, updates (displays) all table errors
  */
 export function updateGeneralErrors(report: ValidationReport) {
-  structureErrors.value = extractStructureErrors(report);
-  bodyErrors.value = extractBodyErrors(report);
+  errors.structureErrors = extractStructureErrors(report);
+  errors.rowErrors = extractRowErrors(report);
 }
 
 /** Given a report, updates (displays) errors specific to line n
  */
 export function updateRowErrors(report: ValidationReport, rowId: number) {
-  rowErrors.value = extractRowErrors(report, rowId);
+  errors.selectedRowErrors = extractSelectedRowErrors(report, rowId);
 }
 
 function extractStructureErrors(report: ValidationReport): Error[] {
+  // "structure" in a loose sense of anything not related to a row, may include "table" errors which can be
+  // categorized as "body" errors rather than structure.
   const errors1 = report.report.errors || [];
   let errors2: Error[] = [];
   if (report.report.tasks.length > 0) {
@@ -83,10 +86,12 @@ function extractStructureErrors(report: ValidationReport): Error[] {
 
   const allErrors = errors1.concat(errors2);
 
-  return allErrors.filter(relatesToDataStructure);
+  return allErrors.filter((e) => !relatesToRow(e));
 }
 
-function extractBodyErrors(report: ValidationReport): Error[] {
+function extractRowErrors(report: ValidationReport): Error[] {
+  // "structure" in a loose sense of anything not related to a row, may include "table" errors which can be
+  // categorized as "body" errors rather than structure.
   const errors1 = report.report.errors || [];
   let errors2: Error[] = [];
   if (report.report.tasks.length > 0) {
@@ -95,12 +100,13 @@ function extractBodyErrors(report: ValidationReport): Error[] {
 
   const allErrors = errors1.concat(errors2);
 
-  return allErrors
-    .filter(relatesToDataBody)
-    .filter((err) => !relatesToRow(err));
+  return allErrors.filter(relatesToRow);
 }
 
-function extractRowErrors(report: ValidationReport, rowId: number): Error[] {
+function extractSelectedRowErrors(
+  report: ValidationReport,
+  rowId: number
+): Error[] {
   if (report.report.tasks.length == 0) {
     return [];
   }
@@ -113,7 +119,9 @@ function extractRowErrors(report: ValidationReport, rowId: number): Error[] {
 function addRowIds(report: ValidationReport, table: TableData) {
   for (const error of report.report.tasks[0].errors) {
     if (error.rowNumber) {
-      const rowId = table.idColumn.values[error.rowNumber - 1];
+      // - 2 because we ignore header row + 0-indexed array whereas rowNumber
+      // is 1-indexed
+      const rowId = table.idColumn.values[error.rowNumber - 2];
       error.rowId = rowId;
     }
   }

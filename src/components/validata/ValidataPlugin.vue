@@ -9,11 +9,22 @@
       <main class="container">
         <h2>Schéma</h2>
 
-        <SchemaPicker />
+        <form
+          id="schema-form"
+          class="fr-form fr-grid-row fr-mt-3w fr-mb-3w fr-grid-row--gutters"
+          @submit.prevent="handleSubmit"
+        >
+          <SchemaPicker />
+
+          <div class="fr-col-12 fr-col-md-4 fr-align-self-center">
+            <button type="submit" class="fr-btn fr-btn--full-width">
+              Valider les données
+            </button>
+          </div>
+        </form>
         <ValidationReport
-          :structureErrors="structureErrors"
-          :bodyErrors="bodyErrors"
-          :rowErrors="rowErrors"
+          :errors="errors"
+          :validationSucceeded="validationSucceeded"
         />
       </main>
     </body>
@@ -21,27 +32,38 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 
-import { structureErrors, bodyErrors, rowErrors } from "./plugin";
+import { errors } from "./plugin";
 import ValidationReport from "./ValidationReport.vue";
 import SchemaPicker from "./SchemaPicker.vue";
+import { GristService } from "./infra/grist";
+import { ValidataService } from "./infra/validata";
+
+import { validateTable } from "./plugin";
+
+import { getValidationReport } from "./plugin";
+import { updateRowErrors } from "./plugin";
+
+const gristService = new GristService();
+const validataService = new ValidataService();
 
 export default defineComponent({
   name: "ValidataPlugin",
   components: { ValidationReport, SchemaPicker },
   setup() {
-    return { validate, structureErrors, bodyErrors, rowErrors };
+    const validationSucceeded = ref(false);
+    async function handleSubmit(event: SubmitEvent) {
+      const schemaURL = _get_schema_url(event);
+
+      if (schemaURL) {
+        await validateTable(schemaURL, validataService, gristService);
+        validationSucceeded.value = true;
+      }
+    }
+    return { handleSubmit, validationSucceeded, errors };
   },
 });
-
-import { validateTable, getValidationReport } from "./plugin";
-import { updateRowErrors } from "./plugin";
-import { GristService } from "./infra/grist";
-import { ValidataService } from "./infra/validata";
-
-const gristService = new GristService();
-const validataService = new ValidataService();
 
 window.grist.ready({
   requiredAccess: "full",
@@ -53,14 +75,6 @@ window.grist.onRecord(async (row) => {
     updateRowErrors(report, row.id);
   }
 });
-
-async function validate(event: SubmitEvent) {
-  const schemaURL = _get_schema_url(event);
-
-  if (schemaURL) {
-    void validateTable(schemaURL, validataService, gristService);
-  }
-}
 
 /**
  * @returns <?string> URL to a Table schema descriptor

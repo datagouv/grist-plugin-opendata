@@ -19,7 +19,7 @@ export async function highlightErrors(
       const errorRows = errorRowsByLabel[label];
 
       errorRowIds = errorRows.map((n) => {
-        return table.idColumn.values[n - 1];
+        return table.idColumn.values[n - 2];
       });
     } else {
       errorRowIds = [];

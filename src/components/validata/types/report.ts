@@ -48,6 +48,12 @@ interface Report {
   version: string;
 }
 
+export interface ErrorsByType {
+  structureErrors: Error[];
+  rowErrors: Error[];
+  selectedRowErrors: Error[];
+}
+
 export interface ValidationReport {
   _meta: Meta;
   report: Report;
@@ -68,28 +74,8 @@ function hasTagFromSet(err: Error, set: ReadonlySet<string>): boolean {
   return err.tags.some((tag) => set.has(tag));
 }
 
-export function relatesToDataStructure(err: Error): boolean {
-  return err.tags.length == 0 || hasTagFromSet(err, STRUCTURE_TAGS);
-}
-
-export function relatesToDataBody(err: Error): boolean {
-  return hasTagFromSet(err, BODY_TAGS);
-}
-
 export function relatesToRow(err: Error): boolean {
   return hasTagFromSet(err, ROW_TAGS);
 }
-
-const STRUCTURE_TAGS: ReadonlySet<string> = new Set([
-  Tag.Head,
-  Tag.Structure,
-  Tag.Header,
-]);
-
-const BODY_TAGS: ReadonlySet<string> = new Set([
-  Tag.Body,
-  Tag.Content,
-  Tag.Table,
-]);
 
 const ROW_TAGS: ReadonlySet<string> = new Set([Tag.Cell, Tag.Row]);
