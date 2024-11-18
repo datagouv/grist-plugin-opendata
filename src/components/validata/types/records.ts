@@ -29,5 +29,3 @@ export interface TableData {
   /** grist table ID **/
   tableId: string;
 }
-
-export type CsvTable = string;

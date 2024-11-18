@@ -232,9 +232,11 @@ export class GristService implements IGrist {
     const queryParams = new URLSearchParams({
       auth: tokenInfo.token,
       tableId: tableId,
+      viewSection: "1",
     });
 
     const url = `${tokenInfo.baseUrl}/download/csv?${queryParams.toString()}`;
+    console.log("XXX url", url);
 
     try {
       const response = await fetch(url);
