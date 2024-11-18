@@ -10,7 +10,7 @@ import {
 import type { TableData } from "./types/records";
 import { getTableAsCSV } from "./csv";
 
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 
 import { useValidationReport } from "./useValidationReport";
 
@@ -31,6 +31,9 @@ export async function validateTable(
   validataService: IValidata,
   gristService: IGrist
 ) {
+  // store schema URL last used for validation as an option
+  grist.setOption("schemaURL", schemaURL);
+
   const records = await gristService.fetchRecords();
 
   if (records) {

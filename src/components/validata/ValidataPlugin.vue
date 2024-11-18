@@ -48,6 +48,8 @@ import { updateRowErrors } from "./plugin";
 const gristService = new GristService();
 const validataService = new ValidataService();
 
+export const schemaURL = ref<string>("");
+
 export default defineComponent({
   name: "ValidataPlugin",
   components: { ValidationReport, SchemaPicker },
@@ -75,6 +77,10 @@ window.grist.onRecord(async (row) => {
   if (report && row) {
     updateRowErrors(report, row.id);
   }
+});
+
+window.grist.onOptions((options: any) => {
+  schemaURL.value = options.schemaURL;
 });
 
 /**
