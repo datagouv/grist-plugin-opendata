@@ -50,12 +50,15 @@ const validataService = new ValidataService();
 
 export const schemaURL = ref<string>("");
 
+const countdownTimeoutId = ref<number | null>(null);
+const validationSucceeded = ref(false);
+
+const COUNTDOWN_SECONDS = 1;
+
 export default defineComponent({
   name: "ValidataPlugin",
   components: { ValidationReport, SchemaPicker },
   setup() {
-    const validationSucceeded = ref(false);
-
     async function handleSubmit(event: SubmitEvent) {
       const schemaURL = _get_schema_url(event);
 
@@ -77,6 +80,23 @@ window.grist.onRecord(async (row) => {
   if (report && row) {
     updateRowErrors(report, row.id);
   }
+});
+
+async function handleAutoValidate() {
+  if (schemaURL.value) {
+    await validateTable(schemaURL.value, validataService, gristService);
+    validationSucceeded.value = true;
+  }
+}
+
+window.grist.onRecords(async () => {
+  if (countdownTimeoutId.value !== null) {
+    clearTimeout(countdownTimeoutId.value);
+  }
+
+  countdownTimeoutId.value = window.setTimeout(() => {
+    handleAutoValidate();
+  }, COUNTDOWN_SECONDS * 1000);
 });
 
 window.grist.onOptions((options: any) => {
