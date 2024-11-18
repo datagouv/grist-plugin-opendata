@@ -100,7 +100,9 @@ window.grist.onRecords(async () => {
 });
 
 window.grist.onOptions((options: any) => {
-  schemaURL.value = options.schemaURL;
+  if (options && options.schemaURL) {
+    schemaURL.value = options.schemaURL;
+  }
 });
 
 /**
