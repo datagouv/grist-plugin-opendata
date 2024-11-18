@@ -53,6 +53,7 @@ export default defineComponent({
   components: { ValidationReport, SchemaPicker },
   setup() {
     const validationSucceeded = ref(false);
+
     async function handleSubmit(event: SubmitEvent) {
       const schemaURL = _get_schema_url(event);
 

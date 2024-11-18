@@ -26,11 +26,16 @@ export interface IGrist {
   updateConditionalFormatting(strId: string, formula: string): Promise<void>;
 
   deleteConditionalFormatting(strId: string): Promise<void>;
+
+  /**
+   *
+   */
+  fetchCSVData(): Promise<string>;
 }
 
 export interface IValidata {
   requestValidataReport(
-    dataRecords: TableData,
+    csvTable: string,
     schemaURL: string,
     options: Options
   ): Promise<ValidataReport>;

@@ -8,6 +8,7 @@ import {
   relatesToRow,
 } from "./types/report";
 import type { TableData } from "./types/records";
+import { getTableAsCSV } from "./csv";
 
 import { reactive } from "vue";
 
@@ -17,6 +18,7 @@ export const errors = reactive<ErrorsByType>({
   structureErrors: [],
   rowErrors: [],
   selectedRowErrors: [],
+  warnings: [],
 });
 
 /** Validate data against the user provided schema.
@@ -33,7 +35,7 @@ export async function validateTable(
 
   if (records) {
     const report = await validataService.requestValidataReport(
-      records,
+      await getTableAsCSV(records, gristService),
       schemaURL,
       {
         header_case: true,
@@ -67,6 +69,7 @@ function storeValidationReport(report: ValidationReport) {
 export function updateGeneralErrors(report: ValidationReport) {
   errors.structureErrors = extractStructureErrors(report);
   errors.rowErrors = extractRowErrors(report);
+  errors.warnings = report.report.tasks[0].warnings;
 }
 
 /** Given a report, updates (displays) errors specific to line n

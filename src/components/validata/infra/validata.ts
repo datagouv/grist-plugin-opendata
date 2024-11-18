@@ -1,6 +1,5 @@
 import { IValidata } from "../spi";
 import { ValidationReport } from "../types/report";
-import { TableData, Column } from "../types/records";
 
 interface Options {
   header_case?: boolean;
@@ -8,12 +7,11 @@ interface Options {
 
 export class ValidataService implements IValidata {
   async requestValidataReport(
-    table: TableData,
+    csvTable: string,
     schemaURL: string,
     options: Options
   ): Promise<ValidationReport> {
-    const fileContent = tableToCsv(table);
-    const body = makeRequestBody(fileContent, schemaURL, options);
+    const body = makeRequestBody(csvTable, schemaURL, options);
 
     const url = "https://api.validata.etalab.studio/validate";
     return fetch(url, {
@@ -42,30 +40,4 @@ function makeRequestBody(
   body.append("header_case", (options.header_case || true).toString());
 
   return body;
-}
-
-function tableToCsv(table: TableData): string {
-  const csvRows = [];
-
-  const headers = table.columns.map((col) => col.label);
-
-  csvRows.push(headers.join(","));
-
-  for (let n = 0; n < table.nRows; n++) {
-    const values = table.columns.map((col) =>
-      get_nth_row_escaped_value(col, n)
-    );
-    csvRows.push(values.join(","));
-  }
-
-  return csvRows.join("\n");
-}
-
-function get_nth_row_escaped_value(column: Column, n: number): grist.CellValue {
-  const value = column.values[n];
-  const escapedValue =
-    value !== null && value !== undefined
-      ? String(value).replace(/"/g, '""')
-      : "";
-  return `"${escapedValue}"`;
 }

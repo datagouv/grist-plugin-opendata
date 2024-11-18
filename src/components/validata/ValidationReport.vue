@@ -24,6 +24,15 @@
       displayBy="type"
     />
 
+    <div v-if="errors.warnings.length > 0" class="fr-mb-3w">
+      <h3>Warnings</h3>
+      <ul>
+        <li v-for="warning in errors.warnings" :key="warning">
+          {{ warning }}
+        </li>
+      </ul>
+    </div>
+
     <div
       v-if="
         errors.selectedRowErrors.length === 0 && errors.rowErrors.length > 0

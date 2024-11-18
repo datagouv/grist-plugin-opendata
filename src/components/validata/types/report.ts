@@ -33,7 +33,7 @@ interface Task {
   stats: {
     errors: number;
   };
-  warnings: Error[];
+  warnings: string[];
   time: number;
   valid: boolean;
 }
@@ -52,6 +52,7 @@ export interface ErrorsByType {
   structureErrors: Error[];
   rowErrors: Error[];
   selectedRowErrors: Error[];
+  warnings: string[];
 }
 
 export interface ValidationReport {

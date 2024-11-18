@@ -217,6 +217,40 @@ export class GristService implements IGrist {
     }
   }
 
+  async fetchCSVData(): Promise<string> {
+    const tableId = await this.getTableStrId();
+
+    const tokenInfo: grist.AccessTokenResult =
+      await grist.docApi.getAccessToken({ readOnly: true });
+    return this._fetchCSVDataWithToken(tableId, tokenInfo);
+  }
+
+  async _fetchCSVDataWithToken(
+    tableId: string,
+    tokenInfo: grist.AccessTokenResult
+  ) {
+    const queryParams = new URLSearchParams({
+      auth: tokenInfo.token,
+      tableId: tableId,
+    });
+
+    const url = `${tokenInfo.baseUrl}/download/csv?${queryParams.toString()}`;
+
+    try {
+      const response = await fetch(url);
+
+      if (response.status == 403) {
+        throw new Error("access denied");
+      } else if (response.status != 200) {
+        throw new Error(`${response.status}: ${response.text()}`);
+      }
+
+      return response.text();
+    } catch (e) {
+      throw new Error(`Could not fetch csv data: ${e}`); // { cause: e }
+    }
+  }
+
   private _fetchConditionalFormattingId(
     id: number,
     columnsInfo: ColumnsInfo
