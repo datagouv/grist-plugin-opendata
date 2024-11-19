@@ -21,7 +21,6 @@
       title="Erreurs de structure"
       id="structure-errors"
       :errors="errors.structureErrors"
-      displayBy="type"
     />
 
     <div v-if="errors.warnings.length > 0" class="fr-mb-3w">
@@ -38,16 +37,15 @@
         errors.selectedRowErrors.length === 0 && errors.rowErrors.length > 0
       "
     >
-      <mark>
-        Veuillez sélectionner une ligne pour en inspecter les erreurs
-      </mark>
+      <DsfrHighlight
+        text="Veuillez sélectionner une ligne pour en inspecter les erreurs"
+      />
     </div>
 
     <ErrorDisplay
       title="Erreurs sur la ligne sélectionnée"
       id="row-errors"
       :errors="errors.selectedRowErrors"
-      displayBy="field"
     />
   </div>
 </template>
@@ -56,10 +54,11 @@
 import { defineComponent, PropType, computed } from "vue";
 import ErrorDisplay from "./ErrorDisplay.vue";
 import type { ErrorsByType, Error } from "./types/report";
+import { DsfrHighlight } from "@gouvminint/vue-dsfr";
 
 export default defineComponent({
   name: "ValidationReport",
-  components: { ErrorDisplay },
+  components: { ErrorDisplay, DsfrHighlight },
   props: {
     errors: {
       type: Object as PropType<ErrorsByType>,

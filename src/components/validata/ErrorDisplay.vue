@@ -5,13 +5,17 @@
       <p v-if="errors.length === 0">Aucune erreur</p>
 
       <dl v-else>
-        <template v-for="error in errors" :key="error.code">
+        <template v-for="error in errors" :key="error.type">
           <dt>
-            <mark>{{
-              displayBy === "type" ? error.code : error.fieldName
-            }}</mark>
+            <DsfrBadge
+              type="warning"
+              :label="'fieldName' in error ? error.fieldName : error.type"
+              noIcon
+            />
           </dt>
-          <dd>{{ error.message }}</dd>
+          <dd>
+            {{ error.message }}
+          </dd>
         </template>
       </dl>
     </div>
@@ -20,12 +24,12 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue";
+import { DsfrBadge } from "@gouvminint/vue-dsfr";
 import type { Error } from "./types/report";
-
-type DisplayBy = "type" | "field";
 
 export default defineComponent({
   name: "ErrorDisplay",
+  components: { DsfrBadge },
   props: {
     title: {
       type: String,
@@ -33,10 +37,6 @@ export default defineComponent({
     },
     errors: {
       type: Array as PropType<Error[]>,
-      required: true,
-    },
-    displayBy: {
-      type: String as PropType<DisplayBy>,
       required: true,
     },
   },
