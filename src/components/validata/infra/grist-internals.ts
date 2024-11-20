@@ -1,6 +1,7 @@
 interface _RawTablesInfo {
   id: number[];
   tableId: string[];
+  rawViewSectionRef: number[];
 }
 
 /**
@@ -143,7 +144,7 @@ export class ColumnsInfo {
 
       if (
         this.belongsToTable(tableNumId, colId) &&
-        !colStrId.startsWith("gristHelper_")
+        !this.isInternalColumn(colStrId)
       ) {
         labels.push(this.internalColumnsRepr.label[i]);
       }
@@ -172,6 +173,10 @@ export class ColumnsInfo {
 
     const tableNumIdForColumn = this.internalColumnsRepr.parentId[index];
     return tableNumIdForColumn == tableNumId;
+  }
+
+  private isInternalColumn(strId: string) {
+    return strId.startsWith("gristHelper") || strId == "manualSort";
   }
 }
 
@@ -250,9 +255,14 @@ interface RulesOption {
   fillColor: string;
 }
 
+interface numIdAndSection {
+  numId: number;
+  rawSectionId: number;
+}
+
 export class TablesInfo {
   internalTableRepr: _RawTablesInfo;
-  numIdByStrId: Record<string, number>;
+  dataByStrId: Record<string, numIdAndSection>;
 
   static async init() {
     return new TablesInfo(await this.fetchData());
@@ -261,15 +271,22 @@ export class TablesInfo {
   private constructor(internalTableRepr: _RawTablesInfo) {
     this.internalTableRepr = internalTableRepr;
 
-    const numIdByStrId: Record<string, number> = {};
+    const dataByStrId: Record<string, numIdAndSection> = {};
     internalTableRepr.tableId.forEach((strId, idx) => {
-      numIdByStrId[strId] = internalTableRepr.id[idx];
+      const numId = internalTableRepr.id[idx];
+      const rawSectionId = internalTableRepr.rawViewSectionRef[idx];
+
+      dataByStrId[strId] = { numId: numId, rawSectionId: rawSectionId };
     });
-    this.numIdByStrId = numIdByStrId;
+    this.dataByStrId = dataByStrId;
   }
 
   getNumId(strId: string): number {
-    return this.numIdByStrId[strId];
+    return this.dataByStrId[strId].numId;
+  }
+
+  getTableRawSection(strId: string): number {
+    return this.dataByStrId[strId].rawSectionId;
   }
 
   private static async fetchData() {

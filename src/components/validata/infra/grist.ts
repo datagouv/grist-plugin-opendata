@@ -62,6 +62,12 @@ export class GristService implements IGrist {
     return this.cachedTableNumId;
   }
 
+  async getTableRawSection(): Promise<number> {
+    const tablesInfo = await TablesInfo.init();
+    const strId = await this.getTableStrId();
+    return tablesInfo.getTableRawSection(strId);
+  }
+
   async fetchRecords() {
     /** in case the selected table on the plugin has been changed **/
     this.invalidateTableIdCache();
@@ -81,11 +87,13 @@ export class GristService implements IGrist {
       return;
     }
 
-    return GristService.convertGristData(
+    const tableData = GristService.convertGristData(
       records,
       labels,
       await this.getTableStrId()
     );
+    console.log("XXX table data :", tableData);
+    return tableData;
   }
 
   async _fetchLabels() {
@@ -232,7 +240,7 @@ export class GristService implements IGrist {
     const queryParams = new URLSearchParams({
       auth: tokenInfo.token,
       tableId: tableId,
-      viewSection: "1",
+      viewSection: (await this.getTableRawSection()).toString(),
     });
 
     const url = `${tokenInfo.baseUrl}/download/csv?${queryParams.toString()}`;
