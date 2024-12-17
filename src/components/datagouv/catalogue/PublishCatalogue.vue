@@ -147,7 +147,7 @@ import { defineComponent, onMounted, ref, computed, watch } from 'vue';
 import HeaderWidget from '../HeaderWidget.vue';
 import TokenForm from '../TokenForm.vue';
 import { useStore } from 'vuex';
-import { queryUrl } from '../../utils';
+import { queryUrl } from '../../../utils';
 
 interface Record {
     id: number;
@@ -188,7 +188,7 @@ export default defineComponent({
     const store = useStore();
 
     onMounted(async () => {
-        
+
         window.grist.ready({
             requiredAccess: 'full',
             columns: []
@@ -289,7 +289,7 @@ export default defineComponent({
                         id: publishOrga.value
                     }
                 }
-                
+
                 let headers = {
                     'Content-Type': 'application/json',
                     'X-API-KEY': store.state.token
@@ -299,11 +299,11 @@ export default defineComponent({
                     "POST",
                     headers,
                     JSON.stringify(body)
-                )      
+                )
                 datasetId.value = data.id
 
                 if (recordToDataset.value && recordToDataset.value.id) {
-                    
+
                     data = await queryUrl(
                         gristUrl + "/api/docs/" + docId.value + "/tables/Catalogue/records?auth=" + tokenInfo.value.token,
                         'PATCH',
@@ -346,7 +346,7 @@ export default defineComponent({
             "POST",
             headers,
             JSON.stringify(body)
-        )        
+        )
         catalogueId.value = data.id
 
         let bodyResource = {
@@ -378,7 +378,7 @@ export default defineComponent({
                 ]
             })
         )
-        
+
         isCatalogue.value = true
     }
 

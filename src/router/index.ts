@@ -1,29 +1,35 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import GristWidget from '../components/GristWidget.vue';
-import AccueilCatalogue from '../components/catalogue/AccueilCatalogue.vue';
-import PublishCatalogue from '../components/catalogue/PublishCatalogue.vue';
+import { createRouter, createWebHistory } from "vue-router";
+import GristWidget from "../components/datagouv/GristWidget.vue";
+import AccueilCatalogue from "../components/datagouv/catalogue/AccueilCatalogue.vue";
+import PublishCatalogue from "../components/datagouv/catalogue/PublishCatalogue.vue";
+import ValidataPlugin from "../components/validata/ValidataPlugin.vue";
 
 const routes = [
   {
-    path: '/',
-    name: 'GristWidget',
-    component: GristWidget
+    path: "/datagouv/",
+    name: "GristWidget",
+    component: GristWidget,
   },
   {
-    path: '/accueil-catalogue',
-    name: 'AccueilCatalogue',
-    component: AccueilCatalogue
+    path: "/datagouv/accueil-catalogue",
+    name: "AccueilCatalogue",
+    component: AccueilCatalogue,
   },
   {
-    path: '/publish-catalogue',
-    name: 'PublishCatalogue',
-    component: PublishCatalogue
-  }
+    path: "/datagouv/publish-catalogue",
+    name: "PublishCatalogue",
+    component: PublishCatalogue,
+  },
+  {
+    path: "/validata",
+    name: "PublishCatalogue",
+    component: ValidataPlugin,
+  },
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
+  routes,
 });
 
 export default router;
