@@ -6,23 +6,23 @@ import ValidataPlugin from "../components/validata/ValidataPlugin.vue";
 
 const routes = [
   {
-    path: "/datagouv/",
+    path: "/",
     name: "GristWidget",
     component: GristWidget,
   },
   {
-    path: "/datagouv/accueil-catalogue",
+    path: "/accueil-catalogue",
     name: "AccueilCatalogue",
     component: AccueilCatalogue,
   },
   {
-    path: "/datagouv/publish-catalogue",
+    path: "/publish-catalogue",
     name: "PublishCatalogue",
     component: PublishCatalogue,
   },
   {
     path: "/validata",
-    name: "PublishCatalogue",
+    name: "ValidataPlugin",
     component: ValidataPlugin,
   },
 ];

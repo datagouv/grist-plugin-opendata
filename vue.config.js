@@ -1,3 +1,4 @@
+const fs = require("fs");
 const { defineConfig } = require("@vue/cli-service");
 module.exports = defineConfig({
   transpileDependencies: true,
@@ -22,6 +23,9 @@ module.exports = {
     },
   },
   devServer: {
-    https: true,
+    https: {
+      key: fs.readFileSync("./localhost+1-key.pem"),
+      cert: fs.readFileSync("./localhost+1.pem"),
+    },
   },
 };
