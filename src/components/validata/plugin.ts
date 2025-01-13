@@ -33,7 +33,9 @@ export async function validateTable(
 ) {
   // store schema URL last used for validation as an option
   grist.setOption("schemaURL", schemaURL);
+
   const records = await gristService.fetchRecords();
+
   if (records) {
     const report = await validataService.requestValidataReport(
       await getTableAsCSV(records, gristService),
