@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import GristWidget from "../components/datagouv/GristWidget.vue";
 import AccueilCatalogue from "../components/datagouv/catalogue/AccueilCatalogue.vue";
 import PublishCatalogue from "../components/datagouv/catalogue/PublishCatalogue.vue";
-import ValidataPlugin from "../components/validata/ValidataPlugin.vue";
+import ValidataWidget from "../components/validata/ValidataPlugin.vue";
 
 const routes = [
   {
@@ -23,7 +23,7 @@ const routes = [
   {
     path: "/validata",
     name: "ValidataPlugin",
-    component: ValidataPlugin,
+    component: ValidataWidget,
   },
 ];
 

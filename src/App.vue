@@ -9,19 +9,19 @@
                 <li>
                   <router-link
                     class="fr-nav__link"
-                    to="/validata"
-                    aria-label="Plugin Validata"
+                    to="/"
+                    aria-label="Plugin DataGouv"
                   >
-                    Validata
+                    DataGouv
                   </router-link>
                 </li>
                 <li>
                   <router-link
                     class="fr-nav__link"
-                    to="/datagouv"
-                    aria-label="Plugin DataGouv"
+                    to="/validata"
+                    aria-label="Plugin Validata"
                   >
-                    DataGouv
+                    Validata
                   </router-link>
                 </li>
               </ul>
