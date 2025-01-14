@@ -1,8 +1,13 @@
 import { IValidata } from "../spi";
-import { ValidationReport } from "../types/report";
+import { ValidationResponse } from "../types/report";
 
 interface Options {
   header_case?: boolean;
+}
+
+const VALIDATA_URL = process.env.VUE_APP_VALIDATA_URL;
+if (!VALIDATA_URL) {
+  throw new Error("Please define VUE_APP_VALIDATA_URL environment variable");
 }
 
 export class ValidataService implements IValidata {
@@ -10,10 +15,10 @@ export class ValidataService implements IValidata {
     csvTable: string,
     schemaURL: string,
     options: Options
-  ): Promise<ValidationReport> {
+  ): Promise<ValidationResponse> {
+    const url = VALIDATA_URL;
     const body = makeRequestBody(csvTable, schemaURL, options);
 
-    const url = "https://api.validata.etalab.studio/validate";
     return fetch(url, {
       method: "POST", // *GET, POST, PUT, DELETE, etc.
       mode: "cors", // no-cors, *cors, same-origin

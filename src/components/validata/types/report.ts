@@ -1,23 +1,12 @@
-interface Meta {
-  args: {
-    schema: string;
-    url: string;
-  };
-  validataTableVersion: string;
-  validataCoreVersion: string;
-}
-
 export interface Error {
-  code: string;
-  description: string;
-  labels: string[];
+  cell?: unknown;
+  cells?: unknown[];
   message: string;
-  name: string;
-  note: string;
   fieldNumber?: number;
   fieldName?: string;
   rowNumber?: number;
   tags: Tag[];
+  type: string;
 
   // specfific to Grist
   rowId?: number;
@@ -27,25 +16,11 @@ interface Stats {
   errors: number;
 }
 
-interface Task {
-  errors: Error[];
-  partial: boolean;
-  stats: {
-    errors: number;
-  };
-  warnings: string[];
-  time: number;
-  valid: boolean;
-}
-
 interface Report {
-  date: string;
   errors: Error[];
   stats: Stats;
-  tasks: Task[];
-  time: number;
   valid: boolean;
-  version: string;
+  warnings: string[];
 }
 
 export interface ErrorsByType {
@@ -55,8 +30,14 @@ export interface ErrorsByType {
   warnings: string[];
 }
 
-export interface ValidationReport {
-  _meta: Meta;
+export interface ValidationResponse {
+  schema: string;
+  url: string;
+  date: string;
+  options: {
+    ignore_header_case: boolean;
+  };
+  version: string;
   report: Report;
 }
 
