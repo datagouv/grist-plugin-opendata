@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, onMounted } from 'vue';
-import HeaderWidget from './HeaderWidget.vue';
+import HeaderWidget from '../HeaderWidget.vue';
 import TokenForm from './TokenForm.vue';
 import MenuWidget from './MenuWidget.vue';
 import PublierForm from './PublierForm.vue';
@@ -101,7 +101,7 @@ export default defineComponent({
 .search-results{
   width: 80%;
   min-height: 80px;
-  border: 1px solid black; 
+  border: 1px solid black;
   margin: auto;
   margin-top: 20px;
   cursor: pointer;

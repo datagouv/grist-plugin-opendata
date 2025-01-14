@@ -144,7 +144,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed, watch } from 'vue';
-import HeaderWidget from '../HeaderWidget.vue';
+import HeaderWidget from '../../HeaderWidget.vue';
 import TokenForm from '../TokenForm.vue';
 import { useStore } from 'vuex';
 import { queryUrl } from '../../../utils';
