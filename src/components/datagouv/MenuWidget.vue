@@ -60,21 +60,6 @@
         </div>
     </div>
     <br />
-    <div disabled class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
-        <div class="fr-tile__body">
-            <div class="fr-tile__content">
-                <h3 class="fr-tile__title">
-                    <a href="#">Je veux valider mes données par rapport à un schéma (Non disponible)</a>
-                </h3>
-                <p class="fr-tile__detail">NON DISPONIBLE A DATE</p>
-            </div>
-        </div>
-        <div class="fr-tile__header">
-            <div class="fr-tile__pictogram">
-              <svg fill="#060091" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M72.7,65.8a6.6,6.6,0,0,0-3.2.8l-8.8-6.5a11.36,11.36,0,0,0,1.2-5.2A11.91,11.91,0,0,0,53,43.4v-10a7,7,0,0,0,4-6.2,6.9,6.9,0,1,0-13.8,0,6.73,6.73,0,0,0,4,6.2v10a11.91,11.91,0,0,0-8.9,11.5,11.36,11.36,0,0,0,1.2,5.2l-8.8,6.5a7.22,7.22,0,0,0-3.2-.8,6.9,6.9,0,1,0,6.9,6.9c0-.5-.1-.9-.1-1.3l9.2-6.8a11.61,11.61,0,0,0,13.6,0l9.2,6.8a5.7,5.7,0,0,0-.1,1.3,6.9,6.9,0,0,0,13.8,0A7.41,7.41,0,0,0,72.7,65.8ZM51.4,60.7a6.75,6.75,0,0,1-1.4.2,6.1,6.1,0,0,1-5.7-4.4,7.72,7.72,0,0,1-.2-1.5,5.81,5.81,0,0,1,3-5.1,6,6,0,0,1,6,0,5.81,5.81,0,0,1,3,5.1,7.72,7.72,0,0,1-.2,1.5A6.54,6.54,0,0,1,51.4,60.7Z"/></svg>
-            </div>
-        </div>
-    </div>
 </template>
 
 
@@ -88,7 +73,7 @@ export default defineComponent({
   setup() {
 
     const store = useStore();
-    const setMenuOptions = (option: string) => { 
+    const setMenuOptions = (option: string) => {
         store.dispatch('updateMenuOption', option);
     }
 

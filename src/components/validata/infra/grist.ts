@@ -92,7 +92,6 @@ export class GristService implements IGrist {
       labels,
       await this.getTableStrId()
     );
-    console.log("XXX table data :", tableData);
     return tableData;
   }
 
@@ -244,7 +243,6 @@ export class GristService implements IGrist {
     });
 
     const url = `${tokenInfo.baseUrl}/download/csv?${queryParams.toString()}`;
-    console.log("XXX url", url);
 
     try {
       const response = await fetch(url);

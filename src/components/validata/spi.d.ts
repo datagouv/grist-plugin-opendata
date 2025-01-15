@@ -4,6 +4,10 @@
 import type { TableData } from "./types/records";
 import type { Error } from "./types/report";
 
+/**
+ * Interface for interacting with Grist
+ * Implementation in "infra/grist.ts"
+ */
 export interface IGrist {
   /**
    * Fetch records of the selected table

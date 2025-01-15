@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { schemaURL } from "./ValidataPlugin.vue";
+import { schemaURL } from "./ValidataWidget.vue";
 
 export default defineComponent({
   name: "SchemaPicker",

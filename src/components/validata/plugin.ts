@@ -45,9 +45,19 @@ export async function validateTable(
       }
     );
 
+    if (!report.report) {
+      const details = report.message ? report.message : "";
+      console.error(`Validation could not be performed: ${details}`);
+      return;
+    }
+
     addRowIds(report, records);
     storeValidationReport(report);
-    void highlightErrors(report, records, gristService);
+    try {
+      void highlightErrors(report, records, gristService);
+    } catch (e) {
+      console.error(e);
+    }
     updateGeneralErrors(report);
   }
 }

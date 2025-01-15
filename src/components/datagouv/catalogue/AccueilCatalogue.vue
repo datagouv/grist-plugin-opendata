@@ -50,7 +50,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import HeaderWidget from '../HeaderWidget.vue';
+import HeaderWidget from '../../HeaderWidget.vue';
 import { queryUrl, utilsGetMetadata } from '../../../utils'; // Import functions from utils
 
 interface Mapping {
