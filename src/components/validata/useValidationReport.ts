@@ -1,14 +1,14 @@
-import { type ValidationReport } from "./types/report";
+import { type ValidationResponse } from "./types/report";
 import { ref } from "vue";
 
-const validationReport = ref<ValidationReport | undefined>(undefined);
+const validationReport = ref<ValidationResponse | undefined>(undefined);
 
 export function useValidationReport() {
   function getValidationReport() {
     return validationReport.value;
   }
 
-  function setValidationReport(report: ValidationReport) {
+  function setValidationReport(report: ValidationResponse) {
     validationReport.value = report;
   }
 

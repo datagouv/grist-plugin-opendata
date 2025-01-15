@@ -1,9 +1,9 @@
 import type { IGrist } from "./spi";
-import type { ValidationReport } from "./types/report";
+import type { ValidationResponse } from "./types/report";
 import type { TableData } from "./types/records";
 
 export async function highlightErrors(
-  report: ValidationReport,
+  report: ValidationResponse,
   table: TableData,
   gristService: IGrist
 ) {
@@ -52,10 +52,10 @@ function findStrIdFromLabel(
  * Returns for each column an array of row numbers containing invalid values
  */
 function aggregateErrorRowsByLabel(
-  report: ValidationReport
+  report: ValidationResponse
 ): Record<string, number[]> {
   const errorRowsByLabel: Record<string, number[]> = {};
-  const reportedCellErrors = report?.report?.tasks[0]?.errors || [];
+  const reportedCellErrors = report?.report?.errors || [];
 
   for (const err of reportedCellErrors) {
     if (err.fieldName && err.rowNumber) {

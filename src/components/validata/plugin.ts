@@ -2,7 +2,7 @@ import { highlightErrors } from "./formatting";
 
 import type { IGrist, IValidata } from "./spi";
 import {
-  type ValidationReport,
+  type ValidationResponse,
   type Error,
   type ErrorsByType,
   relatesToRow,
@@ -65,75 +65,57 @@ export async function validateTable(
 /** Returns the last evaluated validation report, if any.
  */
 
-export function getValidationReport(): ValidationReport | undefined {
+export function getValidationReport(): ValidationResponse | undefined {
   const getValidationReport = useValidationReport().getValidationReport;
   return getValidationReport();
 }
 
 /** Stores a validation report for future reference with `getValidationReport`
  */
-function storeValidationReport(report: ValidationReport) {
+function storeValidationReport(report: ValidationResponse) {
   const setValidationReport = useValidationReport().setValidationReport;
   setValidationReport(report);
 }
 
 /** Given a report, updates (displays) all table errors
  */
-export function updateGeneralErrors(report: ValidationReport) {
+export function updateGeneralErrors(report: ValidationResponse) {
   errors.structureErrors = extractStructureErrors(report);
   errors.rowErrors = extractRowErrors(report);
-  errors.warnings = report.report.tasks[0].warnings;
+  errors.warnings = report.report.warnings;
 }
 
 /** Given a report, updates (displays) errors specific to line n
  */
-export function updateRowErrors(report: ValidationReport, rowId: number) {
+export function updateRowErrors(report: ValidationResponse, rowId: number) {
   errors.selectedRowErrors = extractSelectedRowErrors(report, rowId);
 }
 
-function extractStructureErrors(report: ValidationReport): Error[] {
+function extractStructureErrors(report: ValidationResponse): Error[] {
   // "structure" in a loose sense of anything not related to a row, may include "table" errors which can be
   // categorized as "body" errors rather than structure.
-  const errors1 = report.report.errors || [];
-  let errors2: Error[] = [];
-  if (report.report.tasks.length > 0) {
-    errors2 = report.report.tasks[0].errors;
-  }
-
-  const allErrors = errors1.concat(errors2);
-
-  return allErrors.filter((e) => !relatesToRow(e));
+  const errors = report.report.errors || [];
+  return errors.filter((e) => !relatesToRow(e));
 }
 
-function extractRowErrors(report: ValidationReport): Error[] {
+function extractRowErrors(report: ValidationResponse): Error[] {
   // "structure" in a loose sense of anything not related to a row, may include "table" errors which can be
   // categorized as "body" errors rather than structure.
-  const errors1 = report.report.errors || [];
-  let errors2: Error[] = [];
-  if (report.report.tasks.length > 0) {
-    errors2 = report.report.tasks[0].errors;
-  }
-
-  const allErrors = errors1.concat(errors2);
-
-  return allErrors.filter(relatesToRow);
+  const errors = report.report.errors || [];
+  return errors.filter(relatesToRow);
 }
 
 function extractSelectedRowErrors(
-  report: ValidationReport,
+  report: ValidationResponse,
   rowId: number
 ): Error[] {
-  if (report.report.tasks.length == 0) {
-    return [];
-  }
-
-  return report.report.tasks[0].errors
+  return report.report.errors
     .filter(relatesToRow)
     .filter((err) => err.rowId == rowId);
 }
 
-function addRowIds(report: ValidationReport, table: TableData) {
-  for (const error of report.report.tasks[0].errors) {
+function addRowIds(report: ValidationResponse, table: TableData) {
+  for (const error of report.report.errors) {
     if (error.rowNumber) {
       // - 2 because we ignore header row + 0-indexed array whereas rowNumber
       // is 1-indexed
