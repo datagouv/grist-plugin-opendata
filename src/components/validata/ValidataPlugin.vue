@@ -15,7 +15,7 @@
           @submit.prevent="handleSubmit"
         >
           <SchemaPicker />
-
+          <br /><br />
           <div class="fr-col-12 fr-col-md-4 fr-align-self-center">
             <button type="submit" class="fr-btn fr-btn--full-width">
               Valider les données
@@ -115,10 +115,14 @@ function _get_schema_url(event: SubmitEvent) {
   }
 
   const data = new FormData(target);
-  const schema = data.get("schema");
-  if (!schema || !(typeof schema === "string")) {
+  const schemaInput = data.get("schema") as string || null;
+  const schemaSelect = data.get("select-schema") as string || null;
+  
+  const schema = schemaSelect?.trim() || schemaInput?.trim();
+  
+  if (!schema) {
     console.error(
-      "The schema input is not defined, not provided as a string, or empty (i.e. not set as required). This is an internal error."
+      "Neither schema input nor select is defined, or both are empty. This is an internal error."
     );
     return;
   }

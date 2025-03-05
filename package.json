@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "node --stack-size=8192 node_modules/.bin/vue-cli-service serve",
+    "build": "node --stack-size=8192 node_modules/.bin/vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -15,7 +15,8 @@
     "vue": "^3.2.13",
     "vue-class-component": "^8.0.0-0",
     "vue-router": "^4.0.13",
-    "vuex": "^4.0.2"
+    "vuex": "^4.0.2",
+    "webpack": "^5.98.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
