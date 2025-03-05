@@ -22,7 +22,7 @@
     <!-- 2/ cette page est celle qui est affichée quand on propose à l'utilisateur de choisir dans quelle organisation dgv rechercher la donnée.
      Si l'utilisateur n'a pas d'organisation sur dgv, on ne lui montre que le bouton de recherche globale. -->
         <div v-if="profile && profile.organizations && profile.organizations.length > 0">
-            <p>A quel organisation appartient le jeu de données que vous souhaitez importer dans Grist ?</p>
+            <p>À quelle organisation appartient le jeu de données que vous souhaitez importer dans Grist ?</p>
             <div v-for="item in profile.organizations" v-bind:key="item.id">
                 <div @click="selectOrganization(item.id, item.logo_thumbnail)" class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
                     <div class="fr-tile__body">
