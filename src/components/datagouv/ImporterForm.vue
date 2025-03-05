@@ -1,6 +1,6 @@
 <template>
 
-    <div v-if="showChoices && selectedTable == ''">
+    <div v-if="currentStep === 'selectTable'">
     <!-- 1/ cette page est celle qui est affichée pour choisir quelle table Grist utiliser -->
         <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="radio-hint-legend">
             Sélectionnez la table que vous voulez utiliser.
@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <div v-if="showChoices && selectedTable != ''">
+    <div v-if="currentStep === 'selectOrganization'">
     <!-- 2/ cette page est celle qui est affichée quand on propose à l'utilisateur de choisir dans quelle organisation dgv rechercher la donnée.
      Si l'utilisateur n'a pas d'organisation sur dgv, on ne lui montre que le bouton de recherche globale. -->
         <div v-if="profile && profile.organizations && profile.organizations.length > 0">
@@ -45,14 +45,14 @@
             <div class="fr-tile__body">
                 <div class="fr-tile__content">
                     <h3 class="fr-tile__title">
-                        <a href="#">Récupérer des données sur tout data.gouv.fr</a>
+                        <a href="#">Récupérer des données qui ne sont pas dans mes organisations</a>
                     </h3>
                 </div>
             </div>
         </div>
     </div>
 
-    <div v-if="!showChoices && selectedTable != '' && !isImported && !showLoader">
+    <div v-if="currentStep === 'searchDataset'">
     <!-- 3/ cette page est celle qui est affichée pour rechercher un jeu de données -->
         <div v-if="showInputSearch">
             <label class="fr-label" for="text-input-text">Rechercher un jeu de données</label>
@@ -76,7 +76,7 @@
 
     <div>
     <!-- 4/ cette page est celle qui est affichée quand l'import est en cours -->
-        <div v-if="showLoader" class="fr-stepper">
+        <div v-if="currentStep === 'loading'" class="fr-stepper">
             <h2 class="fr-stepper__title">
                 En cours d'importation dans la table {{ selectedTable }}
             </h2>
@@ -121,7 +121,7 @@ export default defineComponent({
   components: { },
   setup() {
     const store = useStore();
-    const showInputSearch = ref(false)
+    const showInputSearch = ref(true)
     const logoSelectedOrg = ref("")
     const showChoices = ref(true)
     const searchText = ref("")
@@ -162,9 +162,8 @@ export default defineComponent({
         showChoices.value = false;
         if (org){
             logoSelectedOrg.value = logo
+            showInputSearch.value = false;
             await getDatasetsOrg(org);
-        } else {
-            showInputSearch.value = true;
         }
     }
 
@@ -331,8 +330,23 @@ export default defineComponent({
         getActiveGristTables()
     });
 
+    const profile = computed(() => store.state.profile);
+
+    const currentStep = computed(() => {
+      if (showLoader.value) return "loading";
+      if (isImported.value) return "imported";
+      if (!showChoices.value) return "searchDataset";
+      if (selectedTable.value !== "") {
+        const hasOrganizations = profile.value?.organizations?.length > 0;
+        return hasOrganizations ? "selectOrganization" : "searchDataset";
+      }
+
+      return "selectTable";
+    });
+
     return {
-        profile: computed(() => store.state.profile),
+        profile,
+        currentStep,
         selectOrganization,
         showInputSearch,
         logoSelectedOrg,
