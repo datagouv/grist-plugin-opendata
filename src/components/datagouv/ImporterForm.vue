@@ -1,22 +1,25 @@
 <template>
-    <div>
-    <!-- cette page est celle qui est affichée quand l'import est en cours -->
-        <div v-if="showLoader" class="fr-stepper">
-            <h2 class="fr-stepper__title">
-                En cours d'importation dans la table {{ selectedTable }}
-            </h2>
-            <div class="fr-stepper__steps" :data-fr-current-step="ongoingStep" data-fr-steps="8"></div>
+
+    <div v-if="showChoices && selectedTable == ''">
+    <!-- 1/ cette page est celle qui est affichée pour choisir quelle table Grist utiliser -->
+        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="radio-hint-legend">
+            Sélectionnez la table que vous voulez utiliser.
+            <span class="fr-hint-text">Attention, toute donnée de cette table sera supprimée</span>
+        </legend>
+        <div v-for="item in activeGristTables" v-bind:key="item">
+            <div class="fr-fieldset__element">
+                <div class="fr-radio-group">
+                    <input type="radio" :id="item" :name="item" :value="item" v-model="selectedTable">
+                    <label class="fr-label" :for="item">
+                        {{ item }}
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div v-if="!showLoader && isImported">
-    <!-- cette page est celle qui est affichée quand l'import est terminé -->
-        <br />
-        🎉 Données importées dans la table {{ selectedTable }}
-    </div>
-
     <div v-if="showChoices && selectedTable != ''">
-    <!-- cette page est celle qui est affichée quand on propose à l'utilisateur de choisir dans quelle organisation dgv rechercher la donnée.
+    <!-- 2/ cette page est celle qui est affichée quand on propose à l'utilisateur de choisir dans quelle organisation dgv rechercher la donnée.
      Si l'utilisateur n'a pas d'organisation sur dgv, on peut sauter cette étape. -->
         <div v-if="profile && profile.organizations && profile.organizations.length > 0">
             <p>A quel organisation appartient le jeu de données que vous souhaitez importer dans Grist ?</p>
@@ -49,27 +52,8 @@
         </div>
     </div>
 
-
-    <div v-if="showChoices && selectedTable == ''">
-    <!-- cette page est celle qui est affichée pour choisir quelle table Grist utiliser -->
-        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="radio-hint-legend">
-            Sélectionnez la table que vous voulez utiliser.
-            <span class="fr-hint-text">Attention, toute donnée de cette table sera supprimée</span>
-        </legend>
-        <div v-for="item in activeGristTables" v-bind:key="item">
-            <div class="fr-fieldset__element">
-                <div class="fr-radio-group">
-                    <input type="radio" :id="item" :name="item" :value="item" v-model="selectedTable">
-                    <label class="fr-label" :for="item">
-                        {{ item }}
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div v-if="!showChoices && selectedTable != '' && !isImported && !showLoader">
-    <!-- cette page est celle qui est affichée pour rechercher un jeu de données -->
+    <!-- 3/ cette page est celle qui est affichée pour rechercher un jeu de données -->
         <div v-if="showInputSearch">
             <label class="fr-label" for="text-input-text">Rechercher un jeu de données</label>
             <input class="fr-input" type="text" id="text-input-text" name="text-input-text" v-model="searchText" @input="searchDatagouv()">
@@ -88,6 +72,22 @@
             </div>
             <br />
         </div>
+    </div>
+
+    <div>
+    <!-- 4/ cette page est celle qui est affichée quand l'import est en cours -->
+        <div v-if="showLoader" class="fr-stepper">
+            <h2 class="fr-stepper__title">
+                En cours d'importation dans la table {{ selectedTable }}
+            </h2>
+            <div class="fr-stepper__steps" :data-fr-current-step="ongoingStep" data-fr-steps="8"></div>
+        </div>
+    </div>
+
+    <div v-if="!showLoader && isImported">
+    <!-- 5/ cette page est celle qui est affichée quand l'import est terminé -->
+        <br />
+        🎉 Données importées dans la table {{ selectedTable }}
     </div>
 
 
