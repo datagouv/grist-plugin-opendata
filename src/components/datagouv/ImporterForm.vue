@@ -42,13 +42,13 @@
             </div>
         </div>
         <div @click="selectOrganization(null, null)" class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
-                <div class="fr-tile__body">
-                    <div class="fr-tile__content">
-                        <h3 class="fr-tile__title">
-                            <a href="#">Récupérer des données sur tout data.gouv.fr</a>
-                        </h3>
-                    </div>
+            <div class="fr-tile__body">
+                <div class="fr-tile__content">
+                    <h3 class="fr-tile__title">
+                        <a href="#">Récupérer des données sur tout data.gouv.fr</a>
+                    </h3>
                 </div>
+            </div>
         </div>
     </div>
 
@@ -206,7 +206,7 @@ export default defineComponent({
       } catch (error) {
         console.error("Error datagouv search", error);
         throw error;
-      }     
+      }
     }
 
     const debouncedSearch = debounce(searchDatagouv, 500);
@@ -280,7 +280,7 @@ export default defineComponent({
             }
         }
         ongoingStep.value = 3
-        
+
 
         for (let i = 0; i <= nbPages.value; i++) {
             let calculus = Math.floor((((((i+1) * 100) / nbPages.value) * 5) / 100) + 3)
@@ -305,7 +305,7 @@ export default defineComponent({
                             arr[processedKey] = [];
                         }
                         arr[processedKey].push(String(item[key]));
-                    }  
+                    }
                 }
             });
 
