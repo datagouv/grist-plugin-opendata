@@ -123,7 +123,7 @@ export default defineComponent({
     const store = useStore();
     const showInputSearch = ref(true)
     const logoSelectedOrg = ref("")
-    const showChoices = ref(true)
+    const showDatasetSelector = ref(false)
     const searchText = ref("")
     const resources = ref<Resource[]>([]);
     const selectedTable = ref("")
@@ -159,7 +159,7 @@ export default defineComponent({
     }
 
     const selectOrganization = async (org: string|null, logo: string) => {
-        showChoices.value = false;
+        showDatasetSelector.value = true;
         if (org){
             logoSelectedOrg.value = logo
             showInputSearch.value = false;
@@ -333,9 +333,10 @@ export default defineComponent({
     const profile = computed(() => store.state.profile);
 
     const currentStep = computed(() => {
-      if (showLoader.value) return "loading";
+      // In reverted order so that later steps have precedence
       if (isImported.value) return "imported";
-      if (!showChoices.value) return "searchDataset";
+      if (showLoader.value) return "loading";
+      if (showDatasetSelector.value) return "searchDataset";
       if (selectedTable.value !== "") {
         const hasOrganizations = profile.value?.organizations?.length > 0;
         return hasOrganizations ? "selectOrganization" : "searchDataset";
@@ -350,7 +351,7 @@ export default defineComponent({
         selectOrganization,
         showInputSearch,
         logoSelectedOrg,
-        showChoices,
+        showDatasetSelector,
         searchText,
         searchDatagouv: debouncedSearch,
         resources,
