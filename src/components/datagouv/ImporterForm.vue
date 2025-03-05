@@ -20,7 +20,7 @@
 
     <div v-if="showChoices && selectedTable != ''">
     <!-- 2/ cette page est celle qui est affichée quand on propose à l'utilisateur de choisir dans quelle organisation dgv rechercher la donnée.
-     Si l'utilisateur n'a pas d'organisation sur dgv, on peut sauter cette étape. -->
+     Si l'utilisateur n'a pas d'organisation sur dgv, on ne lui montre que le bouton de recherche globale. -->
         <div v-if="profile && profile.organizations && profile.organizations.length > 0">
             <p>A quel organisation appartient le jeu de données que vous souhaitez importer dans Grist ?</p>
             <div v-for="item in profile.organizations" v-bind:key="item.id">
@@ -40,15 +40,15 @@
                 </div>
                 <br />
             </div>
-            <div @click="selectOrganization(null, null)" class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
+        </div>
+        <div @click="selectOrganization(null, null)" class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
                 <div class="fr-tile__body">
                     <div class="fr-tile__content">
                         <h3 class="fr-tile__title">
-                            <a href="#">Récupérer des données qui ne sont pas dans mes organisations</a>
+                            <a href="#">Récupérer des données sur tout data.gouv.fr</a>
                         </h3>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
 
