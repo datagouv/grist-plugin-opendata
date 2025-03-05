@@ -20,7 +20,7 @@
 
     <div v-if="currentStep === 'selectOrganization'">
     <!-- 2/ cette page est celle qui est affichée quand on propose à l'utilisateur de choisir dans quelle organisation dgv rechercher la donnée.
-     Si l'utilisateur n'a pas d'organisation sur dgv, on ne lui montre que le bouton de recherche globale. -->
+     Si l'utilisateur n'a pas d'organisation, cette étape est sautée. -->
         <div v-if="profile && profile.organizations && profile.organizations.length > 0">
             <p>À quelle organisation appartient le jeu de données que vous souhaitez importer dans Grist ?</p>
             <div v-for="item in profile.organizations" v-bind:key="item.id">
