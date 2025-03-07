@@ -1,21 +1,28 @@
 <template>
-    <div>
-        <div v-if="showLoader" class="fr-stepper">
-            <h2 class="fr-stepper__title">
-                En cours d'importation dans la table {{ selectedTable }}
-            </h2>
-            <div class="fr-stepper__steps" :data-fr-current-step="ongoingStep" data-fr-steps="8"></div>
+
+    <div v-if="currentStep === 'selectTable'">
+    <!-- 1/ cette page est celle qui est affichée pour choisir quelle table Grist utiliser -->
+        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="radio-hint-legend">
+            Sélectionnez la table que vous voulez utiliser.
+            <span class="fr-hint-text">Attention, toute donnée de cette table sera supprimée</span>
+        </legend>
+        <div v-for="item in activeGristTables" v-bind:key="item">
+            <div class="fr-fieldset__element">
+                <div class="fr-radio-group">
+                    <input type="radio" :id="item" :name="item" :value="item" v-model="selectedTable">
+                    <label class="fr-label" :for="item">
+                        {{ item }}
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div v-if="!showLoader && isImported">
-        <br />
-        🎉 Données importées dans la table {{ selectedTable }}
-    </div>
-
-    <div v-if="showChoices && selectedTable != ''">
+    <div v-if="currentStep === 'selectOrganization'">
+    <!-- 2/ cette page est celle qui est affichée quand on propose à l'utilisateur de choisir dans quelle organisation dgv rechercher la donnée.
+     Si l'utilisateur n'a pas d'organisation, cette étape est sautée. -->
         <div v-if="profile && profile.organizations && profile.organizations.length > 0">
-            <p>A quel organisation appartient le jeu de données que vous souhaitez importer dans Grist ?</p>
+            <p>À quelle organisation appartient le jeu de données que vous souhaitez importer dans Grist ?</p>
             <div v-for="item in profile.organizations" v-bind:key="item.id">
                 <div @click="selectOrganization(item.id, item.logo_thumbnail)" class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
                     <div class="fr-tile__body">
@@ -33,37 +40,20 @@
                 </div>
                 <br />
             </div>
-            <div @click="selectOrganization(null, null)" class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
-                <div class="fr-tile__body">
-                    <div class="fr-tile__content">
-                        <h3 class="fr-tile__title">
-                            <a href="#">Récupérer des données qui ne sont pas dans mes organisations</a>
-                        </h3>
-                    </div>
+        </div>
+        <div @click="selectOrganization(null, null)" class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
+            <div class="fr-tile__body">
+                <div class="fr-tile__content">
+                    <h3 class="fr-tile__title">
+                        <a href="#">Récupérer des données qui ne sont pas dans mes organisations</a>
+                    </h3>
                 </div>
             </div>
         </div>
     </div>
 
-
-    <div v-if="showChoices && selectedTable == ''">
-        <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="radio-hint-legend">
-            Sélectionnez la table que vous voulez utiliser.
-            <span class="fr-hint-text">Attention, toute donnée de cette table sera supprimée</span>
-        </legend>
-        <div v-for="item in activeGristTables" v-bind:key="item">
-            <div class="fr-fieldset__element">
-                <div class="fr-radio-group">
-                    <input type="radio" :id="item" :name="item" :value="item" v-model="selectedTable">
-                    <label class="fr-label" :for="item">
-                        {{ item }}
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div v-if="!showChoices && selectedTable != '' && !isImported && !showLoader">
+    <div v-if="currentStep === 'searchDataset'">
+    <!-- 3/ cette page est celle qui est affichée pour rechercher un jeu de données -->
         <div v-if="showInputSearch">
             <label class="fr-label" for="text-input-text">Rechercher un jeu de données</label>
             <input class="fr-input" type="text" id="text-input-text" name="text-input-text" v-model="searchText" @input="searchDatagouv()">
@@ -82,6 +72,22 @@
             </div>
             <br />
         </div>
+    </div>
+
+    <div>
+    <!-- 4/ cette page est celle qui est affichée quand l'import est en cours -->
+        <div v-if="currentStep === 'loading'" class="fr-stepper">
+            <h2 class="fr-stepper__title">
+                En cours d'importation dans la table {{ selectedTable }}
+            </h2>
+            <div class="fr-stepper__steps" :data-fr-current-step="ongoingStep" data-fr-steps="8"></div>
+        </div>
+    </div>
+
+    <div v-if="!showLoader && isImported">
+    <!-- 5/ cette page est celle qui est affichée quand l'import est terminé -->
+        <br />
+        🎉 Données importées dans la table {{ selectedTable }}
     </div>
 
 
@@ -115,9 +121,9 @@ export default defineComponent({
   components: { },
   setup() {
     const store = useStore();
-    const showInputSearch = ref(false)
+    const showInputSearch = ref(true)
     const logoSelectedOrg = ref("")
-    const showChoices = ref(true)
+    const showDatasetSelector = ref(false)
     const searchText = ref("")
     const resources = ref<Resource[]>([]);
     const selectedTable = ref("")
@@ -153,12 +159,11 @@ export default defineComponent({
     }
 
     const selectOrganization = async (org: string|null, logo: string) => {
-        showChoices.value = false;
+        showDatasetSelector.value = true;
         if (org){
             logoSelectedOrg.value = logo
+            showInputSearch.value = false;
             await getDatasetsOrg(org);
-        } else {
-            showInputSearch.value = true;
         }
     }
 
@@ -200,7 +205,7 @@ export default defineComponent({
       } catch (error) {
         console.error("Error datagouv search", error);
         throw error;
-      }     
+      }
     }
 
     const debouncedSearch = debounce(searchDatagouv, 500);
@@ -274,7 +279,7 @@ export default defineComponent({
             }
         }
         ongoingStep.value = 3
-        
+
 
         for (let i = 0; i <= nbPages.value; i++) {
             let calculus = Math.floor((((((i+1) * 100) / nbPages.value) * 5) / 100) + 3)
@@ -299,7 +304,7 @@ export default defineComponent({
                             arr[processedKey] = [];
                         }
                         arr[processedKey].push(String(item[key]));
-                    }  
+                    }
                 }
             });
 
@@ -325,12 +330,28 @@ export default defineComponent({
         getActiveGristTables()
     });
 
+    const profile = computed(() => store.state.profile);
+
+    const currentStep = computed(() => {
+      // In reverted order so that later steps have precedence
+      if (isImported.value) return "imported";
+      if (showLoader.value) return "loading";
+      if (showDatasetSelector.value) return "searchDataset";
+      if (selectedTable.value !== "") {
+        const hasOrganizations = profile.value?.organizations?.length > 0;
+        return hasOrganizations ? "selectOrganization" : "searchDataset";
+      }
+
+      return "selectTable";
+    });
+
     return {
-        profile: computed(() => store.state.profile),
+        profile,
+        currentStep,
         selectOrganization,
         showInputSearch,
         logoSelectedOrg,
-        showChoices,
+        showDatasetSelector,
         searchText,
         searchDatagouv: debouncedSearch,
         resources,
