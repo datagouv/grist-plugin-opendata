@@ -1,9 +1,8 @@
-# Plugin Validata
+# Guides d'utilisation du plugin Grist data.gouv.fr - Onglet Validata
 
-## Guide d'utilisation
+[Voir les prérequis](./README.md)
 
-- `Nouveau` > `ajouter une vue à la page` > `Personnalisée` >  Choisir la 
-  donnée source > Sélectionner la vue dans `SELECT BY` > `Ajouter à la page`
+- `Nouveau` > `ajouter une vue à la page` > `Personnalisée` >  Choisir la donnée source > Sélectionner la vue dans `SELECT BY` > `Ajouter à la page`
 
 ![Capture d'écran "Ajouter une vue"](./images/GuideValidata_ajouter_vue.png)
 
