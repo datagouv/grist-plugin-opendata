@@ -13,6 +13,8 @@ Les équipes [data.gouv.fr](https://data.gouv.fr/) et [Validata](https://validat
 
 ⚠️ Ce plugin à destination des agents publics est en version _beta_.
 
+Toutes suggestion d'amélioration ou signalements de problèmes sont bienvenus sur [le forum data.gouv.fr](https://forum.data.gouv.fr/) ou au moyen de [tickets sur ce dépôt](https://github.com/datagouv/grist-plugin-opendata/issues).
+
 ## Onglet DataGouv
 
 L'onglet DataGouv permet d'interagir avec data.gouv.fr directement depuis Grist.
