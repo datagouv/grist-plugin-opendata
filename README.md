@@ -1,43 +1,57 @@
-# Plugin Grist pour l'interaction avec data.gouv et la validation des données
+# Plugin Grist data.gouv.fr
 
-## Plugin DataGouv
+[Grist](https://www.getgrist.com/) est outil permettant de travailler sur des données et de construire des outils métiers avancés.
 
-Le plugin DataGouv permet d'interagir avec data.gouv.fr directement depuis 
-Grist.
+Les équipes [data.gouv.fr](https://data.gouv.fr/) et [Validata](https://validata.fr/) ont développé un plugin Grist (« widget personnalisé ») permettant :
 
-À compléter
+* de publier des données sur data.gouv.fr directement depuis Grist (onglet DataGouv)
+* de récupérer des données de data.gouv.fr pour les utiliser dans Grist  (onglet DataGouv)
+* de créer un template métier dans Grist à partir d’un schéma sur [schema.data.gouv.fr](https://schema.data.gouv.fr/)  (onglet DataGouv)
+* de vérifier directement dans Grist la validité de données par rapport à un schéma (onglet Validata)
 
-## Plugin Validata
+ℹ️ Grist est à disposition des agents publics via [la Suite numérique](https://lasuite.numerique.gouv.fr/) et [la Suite territoriale](https://suiteterritoriale.anct.gouv.fr/) :
 
-Le plugin validata permet de valider une table grist avec un schéma au format 
-Table Schema. 
+⚠️ Ce plugin à destination des agents publics est en version _beta_.
 
-Le plugin est en cours de développement et de test, n'utilisez pas sur des 
-données sensibles et faites une copie de sécurité de vos données avant de 
-l'utiliser. 
+Toutes suggestion d'amélioration ou signalements de problèmes sont bienvenus sur [le forum data.gouv.fr](https://forum.data.gouv.fr/) ou au moyen de [tickets sur ce dépôt](https://github.com/datagouv/grist-plugin-opendata/issues).
 
-Cf [Guide d'utilisation et limites connues](./docs/validata.md).
+## Onglet DataGouv
 
-## Project setup for developpers
+L'onglet DataGouv permet d'interagir avec data.gouv.fr directement depuis Grist.
+
+[Guide d'utilisation](./docs/datagouv.md)
+
+## Onglet Validata
+
+L'onglet validata permet de valider une table Grist avec un schéma au format Table Schema. 
+
+[Guide d'utilisation](./docs/validata.md).
+
+## Documentation technique
+
+### Installation
 
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### Compilation et _hot reload_ pour le développement
+
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### Compilation et minification pour la production
+
 ```
 npm run build
 ```
 
-### Lints and fixes files
+### Analyse avec [ESLint](https://eslint.org/)
 ```
 npm run lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Configuration personnalisée
+
+Voir [la documentation Vue CLI](https://cli.vuejs.org/config/).
