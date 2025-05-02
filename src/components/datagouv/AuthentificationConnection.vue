@@ -49,8 +49,6 @@
 
         store.dispatch('updateToken',   token);
         store.dispatch('updateProfile', me);
-        alert(JSON.stringify(me))
-
         auth.cleanup();
       }
   

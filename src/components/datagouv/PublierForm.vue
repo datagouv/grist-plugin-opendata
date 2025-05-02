@@ -188,6 +188,7 @@ export default defineComponent({
       if (token)   store.dispatch('updateToken', token);
       if (profile) store.dispatch('updateProfile', profile);
     });
+    
 
     const isSelectedOrg     = ref(false);
     const isSelectedTable  = ref(false);
@@ -263,9 +264,10 @@ export default defineComponent({
 
     async function fetchTableRows (tableId: string | null) {
       if (tableId) {
+      const tokenInfo = await window.grist.docApi.getAccessToken({readOnly: true});
       const rows: any[] = [];
       const docId = store.state.docId;
-      const url   = `${gristUrl}/api/docs/${docId}/tables/${tableId}/records`;
+      const url   = `${gristUrl}/api/docs/${docId}/tables/${tableId}/records?auth=${tokenInfo.token}`;
       const data  = await fetch(url).then(r => r.json());
       rows.push(...data.records.map((r: any) => r.fields));
       return rows;
