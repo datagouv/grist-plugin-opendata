@@ -11,19 +11,13 @@ interface State {
   activeGristTables: string[];
 }
 
-function loadPersisted<T = string>(key: string, fallback: T): T {
-  try {
-    const v = localStorage.getItem(key);
-    return v ? (v as unknown as T) : fallback;
-  } catch { return fallback; }
-}
 
 const store = createStore<State>({
   state: {
     docId:              '',
     tableId:            '',
-    token:              loadPersisted('dg_token', ''),
-    apikey:             loadPersisted('dg_apikey', ''),
+    token:              '',
+    apikey:             '',
     profile:            {},
     menuOption:         null,
     publierOrganization: null,
@@ -50,7 +44,7 @@ const store = createStore<State>({
     },
     updateProfile({ commit, dispatch }, profile) {
       commit('setProfile', profile);
-      if (profile?.apikey) dispatch('updateApiKey', profile.apikey);
+      if (profile?.apikey) commit('setApiKey', profile.apikey);
     },
     logout({ commit }) {
       commit('clearAuth');
