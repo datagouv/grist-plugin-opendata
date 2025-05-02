@@ -49,7 +49,7 @@
 
         store.dispatch('updateToken',   token);
         store.dispatch('updateProfile', me);
-        alert(store.state.apikey)
+        alert(JSON.stringify(me))
 
         auth.cleanup();
       }
