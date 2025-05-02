@@ -82,8 +82,8 @@ export default defineComponent({
   name: 'AccueilCatalogue',
   components: { HeaderWidget },
   setup() {
-    const gristUrl = process.env.VUE_APP_GRIST_URL
-    const datagouvUrl = process.env.VUE_APP_DATAGOUV_IMPORT_URL
+    const gristUrl = process.env.VUE_APP_GRIST_URL ?? ""
+    const datagouvUrl = process.env.VUE_APP_DATAGOUV_IMPORT_URL ?? ""
     const docId: any = ref(null)
     const dataGouvOrganization = ref("")
     const dataGouvOrganizationId = ref("")
@@ -156,7 +156,6 @@ export default defineComponent({
         }
 
         // 1 - Regarder si l'orga est présente dans la table orga. Si non, l'ajouter et ajouter son siret
-
         let url = datagouvUrl + "/api/1/organizations/" + dataGouvOrganizationId.value
         let data = await queryUrl(url)
         let orgaName = data.name
@@ -192,12 +191,12 @@ export default defineComponent({
         }
 
         // 2 - Récupérer les tables frequency, couverture geo et licence et format
-
-        const frequencies = await utilsGetMetadata(gristUrl, docId.value, "Ref_Frequency", tokenInfo.value.token)
-        const geocoverages = await utilsGetMetadata(gristUrl, docId.value, "Ref_GeographicalCoverage", tokenInfo.value.token)
-        const licences = await utilsGetMetadata(gristUrl, docId.value, "Ref_Licence", tokenInfo.value.token)
+        const token = tokenInfo.value.token!;
+        const frequencies = await utilsGetMetadata(gristUrl, docId.value, "Ref_Frequency", token)
+        const geocoverages = await utilsGetMetadata(gristUrl, docId.value, "Ref_GeographicalCoverage", token)
+        const licences = await utilsGetMetadata(gristUrl, docId.value, "Ref_Licence", token)
         //specific process for formats
-        url = gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Format/records?auth=" + tokenInfo.value.token
+        url = gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Format/records?auth=" + token
         data = await queryUrl(url)
         const formats: any = {};
         data.records.forEach((item: { fields: { valeur: string|number; }; id: any; }) => {

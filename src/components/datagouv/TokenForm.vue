@@ -20,7 +20,7 @@ export default defineComponent({
     const store = useStore();
     const token = ref('');
     const isTokenSet = ref(false);
-    const datagouvUrl = process.env.VUE_APP_DATAGOUV_PUBLISH_URL;
+    const datagouvUrl = process.env.VUE_APP_DATAGOUV_PUBLISH_URL ?? "";
     const urlDisplay = ref("")
 
     onMounted(() => {

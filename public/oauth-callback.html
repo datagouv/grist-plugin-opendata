@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>OAuth callback</title>
+<script>
+  const p = new URLSearchParams(location.search);
+  const code  = p.get('code');
+  const state = p.get('state');
+  if (window.opener && code) {
+    window.opener.postMessage({ code, state }, location.origin);
+    try { window.close(); } catch (_) {}
+  }
+  document.body.textContent =
+    code ? 'Connexion réussie, vous pouvez revenir à l’application…'
+         : 'Erreur OAuth';
+</script>
