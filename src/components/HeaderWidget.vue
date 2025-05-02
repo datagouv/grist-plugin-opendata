@@ -32,31 +32,6 @@
     <div class="item-subpart">
       <span> Open data widget (version bêta) </span>
     </div>
-
-    <!-- Navigation Menu -->
-    <nav
-      class="fr-nav"
-      id="header-navigation"
-      role="navigation"
-      aria-label="Menu principal"
-    >
-      <ul class="fr-nav__list">
-        <li class="fr-nav__item">
-          <router-link class="fr-nav__link" to="/" aria-label="Widget DataGouv">
-            DataGouv
-          </router-link>
-        </li>
-        <li class="fr-nav__item">
-          <router-link
-            class="fr-nav__link"
-            to="/validata"
-            aria-label="Widget Validata"
-          >
-            Validata
-          </router-link>
-        </li>
-      </ul>
-    </nav>
   </div>
 </template>
 
