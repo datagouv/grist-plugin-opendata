@@ -45,7 +45,9 @@
         const me = await fetch(`${BASE_URL}/api/1/me/`, {
           headers: { Authorization: `Bearer ${token}` }
         }).then(r => r.json());
-  
+        
+        alert(me)
+
         store.dispatch('updateToken',   token);
         store.dispatch('updateProfile', me);
         auth.cleanup();

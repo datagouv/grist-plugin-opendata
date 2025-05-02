@@ -345,10 +345,6 @@ export default defineComponent({
             ? `${datagouvUrl}/api/1/datasets/${datasetId}/resources/${selectedResource.value.id}/`
             : `${datagouvUrl}/api/1/datasets/${datasetId}/resources/`;
 
-          
-          alert(resUrl)
-          alert(JSON.stringify(resBody))
-
           await fetch(resUrl, {
             method: resourceMode.value==='replace' ? 'PUT' : 'POST',
             headers:{ 'Content-Type':'application/json',
