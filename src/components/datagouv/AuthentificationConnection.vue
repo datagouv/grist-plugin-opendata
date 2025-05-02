@@ -46,10 +46,11 @@
           headers: { Authorization: `Bearer ${token}` }
         }).then(r => r.json());
         
-        alert(me)
 
         store.dispatch('updateToken',   token);
         store.dispatch('updateProfile', me);
+        alert(store.state.apikey)
+
         auth.cleanup();
       }
   
