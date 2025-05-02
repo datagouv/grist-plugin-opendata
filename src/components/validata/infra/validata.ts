@@ -5,7 +5,7 @@ interface Options {
   header_case?: boolean;
 }
 
-const VALIDATA_URL = process.env.VUE_APP_VALIDATA_URL;
+const VALIDATA_URL = process.env.VUE_APP_VALIDATA_URL ?? "";
 if (!VALIDATA_URL) {
   throw new Error("Please define VUE_APP_VALIDATA_URL environment variable");
 }

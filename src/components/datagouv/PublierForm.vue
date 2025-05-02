@@ -1,172 +1,398 @@
 <template>
   <br />
-  <div v-if="!isSelectedOrg && !isSelectedTables">
-    <div v-if="profile && profile.organizations && profile.organizations.length > 0">
-      <p>Pour quelle organisations souhaitez-vous publier ?</p>
-      <div v-for="item in profile.organizations" v-bind:key="item.id">
-        <div @click="selectOrganization(item.id)" class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
-          <div class="fr-tile__body">
+  <div v-if="!profile.first_name">
+    <authentification-connection />
+  </div>
+  <div v-else>
+    <div v-if="!isSelectedOrg && !isPublicationModeResourceSelected">
+      <div v-if="profile.organizations?.length">
+        <p>Bonjour <b>{{ profile.first_name }} {{ profile.last_name }}</b>, pour quelle organisation souhaitez-vous publier ?</p>
+
+        <div v-for="item in profile.organizations" :key="item.id">
+          <div @click="selectOrganization(item.id)"
+               class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link">
+            <div class="fr-tile__body">
               <div class="fr-tile__content">
-                  <h3 class="fr-tile__title">
-                      <a href="#">{{ item.name }}</a>
-                  </h3>
+                <h3 class="fr-tile__title"><a href="#">{{ item.name }}</a></h3>
               </div>
-          </div>
-          <div class="fr-tile__header">
+            </div>
+            <div class="fr-tile__header">
               <div class="fr-tile__pictogram">
-                <img :src="item.logo_thumbnail" />
+                <img :src="item.logo_thumbnail" alt="" />
               </div>
+            </div>
+          </div>
+          <br />
+        </div>
+      </div>
+      <div v-else>
+        Vous devez d’abord créer ou rejoindre une organisation sur data.gouv.fr.&nbsp;
+        <a href="https://guides.data.gouv.fr/guide-data.gouv.fr/organisation"
+           target="_blank">Voir le guide</a>
+      </div>
+    </div>
+
+    <div v-if="isSelectedOrg && !isPublicationModeResourceSelected">
+      <fieldset class="fr-fieldset">
+        <legend class="fr-fieldset__legend">
+          Sélectionnez la table à publier
+        </legend>
+      
+        <div v-for="(item, index) in activeGristTables"
+             :key="'radio-'+index"
+             class="fr-fieldset__element">
+      
+          <div class="fr-radio-group">
+            <input
+              type="radio"
+              :id="'r'+index"
+              name="grist-table"
+              v-model="selectedTable"
+              @click="isSelectedTable = true"
+              :value="item"
+            />
+            <label class="fr-label" :for="'r'+index">{{ item }}</label>
           </div>
         </div>
+      </fieldset>
+    
+      <div v-if="isSelectedTable">
+        <button class="fr-btn btn-publish" @click="validateTable('remote')">
+          Publier la table en faisant une référence à ce fichier grist sur data.gouv.fr
+        </button>
+        <div class="petite-ligne"><b>pré-requis :</b> rendre votre document grist en accès public</div>
         <br />
+        <button class="fr-btn fr-btn--secondary btn-publish" @click="validateTable('file')">Publier la table en uploadant le fichier sur data.gouv.fr</button>
+        <div class="petite-ligne"><b>Attention : </b>Les modifications effectuées sur ce grist ne seront visibles que si vous mettez à jour manuellement la table via ce plugin</div>
       </div>
     </div>
-    <div v-else>
-      Vous devez au préalable créer ou rejoindre une organisation sur data.gouv.fr.
-      <a href="https://guides.data.gouv.fr/guide-data.gouv.fr/organisation">Voir le guide</a>
-    </div>
-  </div>
-  <div v-if="isSelectedOrg && !isSelectedTables">
-    <fieldset class="fr-fieldset" id="checkboxes" aria-labelledby="checkboxes-legend checkboxes-messages">
-      <legend class="fr-fieldset__legend--regular fr-fieldset__legend" id="checkboxes-legend">
-          Sélectionnez les tables que vous souhaitez publier (chaque table sera publié en tant que fichier du jeu de données data.gouv.fr).
-      </legend>
-      <div v-for="(item, index) in activeGristTables" v-bind:key="'checkbox-'+index" class="fr-fieldset__element">
-          <div class="fr-checkbox-group">
-              <input
-                v-model="selectedTables"
-                :value="item"
-                :id="'checkbox-'+index"
-                type="checkbox">
-              <label class="fr-label" :for="'checkbox-'+index">
-                  {{ item }}
-              </label>
-              <div class="fr-messages-group" :id="'checkbox-'+index+'-messages'" aria-live="assertive">
-              </div>
-          </div>
+
+    <div v-if="isSelectedOrg && isPublicationModeResourceSelected && !publicationMode">
+      <p class="fr-text--lead">Souhaitez-vous :</p>
+
+      <div class="fr-radio-group">
+        <input type="radio" id="mode-new" value="new" v-model="publicationMode">
+        <label for="mode-new">
+          Publier un nouveau jeu de données
+        </label>
       </div>
-    </fieldset>
-    <div @click="validateTables()" class="fr-btn">Valider les tables</div>
-  </div>
-  <div v-if="isSelectedOrg && isSelectedTables && !isPublished">
-    <label class="fr-label" for="text-input-text">Titre du jeu de données</label>
-    <input class="fr-input" type="text" id="text-input-text" name="text-input-text" v-model="datasetTitle">
-    <div class="fr-input-group">
-      <label class="fr-label" for="textarea">
-        Description du jeu de données
-      </label>
-      <textarea class="fr-input" id="textarea" name="textarea" v-model="datasetDescription"></textarea>
+      <br />
+      <div class="fr-radio-group">
+        <input type="radio" id="mode-up" value="update" v-model="publicationMode" @change="loadDatasets">
+        <label for="mode-up">
+          Mettre à jour un jeu de données existant
+        </label>
+      </div>
     </div>
-    <div @click="publishDataset()" class="fr-btn">Publier les données</div>
+
+    <div v-if="publicationMode==='update' && !selectedDataset">
+      <p>Sélectionnez le jeu de données à mettre à jour :</p>
+
+      <span v-if="isLoadingDatasets" class="fr-badge">Chargement…</span>
+
+      <table v-else class="fr-table fr-table--no-caption">
+        <thead><tr><th>Titre du jeu de données</th><th></th></tr></thead>
+        <tbody>
+          <tr v-for="d in orgDatasets" :key="d.id">
+            <td>{{ d.title }}</td>
+            <td>
+              <button class="fr-btn fr-btn--sm" @click="selectDataset(d)">
+                Choisir
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div v-if="selectedDataset && !resourceMode">
+      <p>Dans «{{ selectedDataset?.title }}», souhaitez-vous :</p>
+
+      <div class="fr-radio-group">
+        <input type="radio" id="res-new" value="new" v-model="resourceMode">
+        <label class="fr-label" for="res-new">
+          Ajouter une nouvelle ressource au jeu de données
+        </label>
+      </div>
+      <br />
+      <div class="fr-radio-group">
+        <input type="radio" id="res-replace" value="replace"
+               v-model="resourceMode">
+        <label class="fr-label" for="res-replace">
+          Remplacer une ressource existante
+        </label>
+      </div>
+    </div>
+
+    <div v-if="resourceMode==='replace' && !selectedResource">
+      <p>Sélectionnez la ressource à remplacer :</p>
+      <table class="fr-table fr-table--no-caption">
+        <thead><tr><th>Titre de la ressource</th><th></th></tr></thead>
+        <tbody>
+          <tr v-for="r in datasetResources" :key="r.id">
+            <td>{{ r.title }}</td>
+            <td>
+              <button class="fr-btn fr-btn--sm"
+                      @click="replaceResource(r)">
+                Remplacer
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div v-if="showMetaForm && !isPublished">
+      <span v-if="!selectedDataset?.id">
+        <label class="fr-label" for="ds-title">Titre du jeu de données</label>
+        <input id="ds-title" class="fr-input" v-model="datasetTitle">
+        <br />
+        <div class="fr-input-group">
+          <label class="fr-label" for="ds-desc">Description</label>
+          <textarea id="ds-desc" class="fr-input" v-model="datasetDescription"/>
+        </div>
+        <br />
+      </span>
+      <span>
+        <div class="fr-input-group">
+          <label class="fr-label" for="ds-desc">Titre publique de votre fichier</label>
+          <input id="ds-title" class="fr-input" v-model="resourceTitle">
+        </div>
+        <br />
+      </span>
+      <button class="fr-btn" @click="publishDataset">
+        Publier les données
+      </button>
+    </div>
+
+    <div v-if="isPublished">
+      Jeu de données publié !&nbsp;
+      <a :href="datasetLink" target="_blank">Ouvrir sur data.gouv.fr</a>
+    </div>
   </div>
-  <div v-if="isPublished">Jeu de données publié, vous pouvez y accéder <a :href="datasetLink" target="_blank">sur ce lien</a></div>
 </template>
 
-
 <script lang="ts">
-import { defineComponent, computed, ref } from 'vue';
+import { defineComponent, ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
+import AuthentificationConnection from './AuthentificationConnection.vue';
+import Papa from 'papaparse';
 
 export default defineComponent({
   name: 'PublierForm',
-  components: { },
-  setup() {
+  components: { AuthentificationConnection },
+  setup () {
     const store = useStore();
-    const isSelectedOrg = ref(false)
-    const selectedTables = ref([])
-    const isSelectedTables = ref(false)
+    onMounted(async () => {
+      const token   = await window.grist.getOption('token_datagouv');
+      const profile = await window.grist.getOption('profile_datagouv');
+      if (token)   store.dispatch('updateToken', token);
+      if (profile) store.dispatch('updateProfile', profile);
+    });
 
-    const datasetTitle = ref("")
-    const datasetDescription = ref("")
+    const isSelectedOrg     = ref(false);
+    const isSelectedTable  = ref(false);
+    const selectedTable    = ref<string | null>(null);
+    const resourceTitle = ref<string>('MonFichier')
 
-    const isPublished = ref(false)
-    const datasetLink = ref("")
-    const datagouvUrl = process.env.VUE_APP_DATAGOUV_PUBLISH_URL
-    const gristPublishUrl = process.env.VUE_APP_GRIST_CHEAT_URL
-
-    const getActiveGristTables = async () => {
-      let activeGristTables = await window.grist.docApi.listTables();
-      store.dispatch('updateActiveGristTables', activeGristTables);
-      let docId = await window.grist.docApi.getDocName();
-      store.dispatch('updateDocId', docId);
-    }
+    const publicationModeResource = ref('remote')
+    const isPublicationModeResourceSelected = ref(false)
 
     const selectOrganization = (id: string) => {
       store.dispatch('updatePublierOrganization', id);
       isSelectedOrg.value = true;
-      getActiveGristTables();
+      loadGristTables();
+    };
+
+    async function loadGristTables () {
+      const tables = await window.grist.docApi.listTables();
+      store.dispatch('updateActiveGristTables', tables);
+      const docId = await window.grist.docApi.getDocName();
+      store.dispatch('updateDocId', docId);
     }
 
-    const validateTables = () => {
-      store.dispatch('updatePublierTables', selectedTables.value);
-      isSelectedTables.value = true;
+    function validateTable(mode: string) {
+      store.dispatch('updatePublierTables', selectedTable.value ? [selectedTable.value] : []);
+      isPublicationModeResourceSelected.value = true;
+      publicationModeResource.value = mode
+      if (selectedTable.value) resourceTitle.value = selectedTable.value
+    }
+    const publicationMode   = ref<'new'|'update'|null>(null);
+
+    const orgDatasets       = ref<any[]>([]);
+    const isLoadingDatasets = ref(false);
+    const selectedDataset   = ref<any|null>(null);
+
+    async function loadDatasets () {
+      if (publicationMode.value !== 'update') return;
+      isLoadingDatasets.value = true;
+
+      const orgId = store.state.publierOrganization;
+      const url   = `${datagouvUrl}/api/1/organizations/${orgId}/datasets?page_size=200`;
+      const { data } = await fetch(url).then(r => r.json());
+      orgDatasets.value = data;
+      isLoadingDatasets.value = false;
     }
 
-    const publishDataset = async () => {
-      let body = {
-        title: datasetTitle.value,
-        description: datasetDescription.value,
-        organization: {
-          id: store.state.publierOrganization
-        }
-      }
-      let response = await fetch(datagouvUrl + "/api/1/datasets/", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-API-KEY': store.state.token
-        },
-        body: JSON.stringify(body)
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log(data)
-      datasetLink.value = datagouvUrl + "/fr/datasets/" + data.id
-      isPublished.value = true
+    async function selectDataset (d: any) {
+      selectedDataset.value = d;
+      const url = `${datagouvUrl}/api/1/datasets/${d.id}`;
+      const full = await fetch(url).then(r => r.json());
+      datasetResources.value = full.resources;
+    }
 
-      let datasetId = data.id
-      selectedTables.value.forEach(async (item: string) => {
-        let bodyResource = {
-          title: item,
-          format: "csv",
-          type: "main",
-          filetype: "remote",
-          url: gristPublishUrl + "/o/docs/api/docs/" + store.state.docId + "/download/csv?tableId=" + item
-        }
-        response = await fetch(datagouvUrl + "/api/1/datasets/" + datasetId + "/resources/", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-API-KEY': store.state.token
-          },
-          body: JSON.stringify(bodyResource)
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        let dataResource = await response.json();
-        console.log(dataResource)
-      })
+    const resourceMode      = ref<'new'|'replace'|null>(null);
+    const datasetResources  = ref<any[]>([]);
+    const selectedResource  = ref<any|null>(null);
+  
+    const datasetTitle       = ref('');
+    const datasetDescription = ref('');
 
+    const showMetaForm = computed(() => {
+      if (publicationMode.value==='new') return true;
+      if (publicationMode.value==='update' && selectedDataset.value && resourceMode.value==='new') return true;
+      if (publicationMode.value==='update' && selectedResource.value) return true;
+      return false;
+    });
+
+    const datagouvUrl = process.env.VUE_APP_DATAGOUV_PUBLISH_URL as string;
+    const gristUrl    = process.env.VUE_APP_GRIST_URL            as string;
+    const gristPublishUrl = process.env.VUE_APP_GRIST_CHEAT_URL as string;
+
+    const isPublished = ref(false);
+    const datasetLink = ref('');
+
+    async function fetchTableRows (tableId: string | null) {
+      if (tableId) {
+      const rows: any[] = [];
+      const docId = store.state.docId;
+      const url   = `${gristUrl}/api/docs/${docId}/tables/${tableId}/records`;
+      const data  = await fetch(url).then(r => r.json());
+      rows.push(...data.records.map((r: any) => r.fields));
+      return rows;
+      } else return []
+    }
+
+    async function replaceResource(r: any){
+      selectedResource.value = r
+    }
+
+    async function publishDataset () {
+      try {
+        let datasetId = selectedDataset.value?.id ?? null;
+
+        if (publicationMode.value === 'new') {
+          const body = {
+            title:       datasetTitle.value,
+            description: datasetDescription.value,
+            organization:{ id: store.state.publierOrganization }
+          };
+          const resp = await fetch(`${datagouvUrl}/api/1/datasets/`, {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json',
+                       'X-API-KEY': store.state.apikey },
+            body: JSON.stringify(body)
+          });
+          if (!resp.ok) throw new Error(`Création dataset KO ${resp.status}`);
+          datasetId = (await resp.json()).id;
+        }
+
+        if (publicationModeResource.value == 'file') {
+          const rows = await fetchTableRows(selectedTable.value);
+          const csv  = Papa.unparse(rows);
+          const file = new File([csv], `${selectedTable.value}.csv`, { type:'text/csv' });
+
+          const upUrl = resourceMode.value==='replace' && selectedResource.value
+            ? `${datagouvUrl}/api/1/datasets/${datasetId}/resources/${selectedResource.value.id}/upload/` : `${datagouvUrl}/api/1/datasets/${datasetId}/upload/`;
+          const upForm = new FormData();
+          upForm.append('file', file);
+
+          const up = await fetch(upUrl, {
+            method:'POST',
+            headers:{ 'X-API-KEY':store.state.apikey },
+            body: upForm
+          });
+          if (!up.ok) throw new Error(`Upload KO ${up.status}`);
+          const { id: rid } = await up.json();
+
+          const resBody = {
+            title:   resourceTitle.value,
+            filetype:'file',
+            format:  'csv',
+            type:    'main'
+          };
+          const resUrl = resourceMode.value==='replace' && selectedResource.value
+            ? `${datagouvUrl}/api/1/datasets/${datasetId}/resources/${selectedResource.value.id}/`
+            : `${datagouvUrl}/api/1/datasets/${datasetId}/resources/${rid}/`;
+
+          await fetch(resUrl, {
+            method: resourceMode.value==='replace' ? 'PUT' : 'PUT',
+            headers:{ 'Content-Type':'application/json',
+                      'X-API-KEY':store.state.apikey },
+            body: JSON.stringify(resBody)
+          });
+        }
+        if (publicationModeResource.value == 'remote') {
+          
+          const resBody = {
+            title:   resourceTitle.value,
+            filetype:'remote',
+            format:  'csv',
+            type:    'main',
+            url: gristPublishUrl + '/o/docs/api/docs/' + store.state.docId + '/download/csv?tableId=' + selectedTable.value
+          };
+
+          const resUrl = resourceMode.value==='replace'
+            ? `${datagouvUrl}/api/1/datasets/${datasetId}/resources/${selectedResource.value.id}/`
+            : `${datagouvUrl}/api/1/datasets/${datasetId}/resources/`;
+
+          
+          alert(resUrl)
+          alert(JSON.stringify(resBody))
+
+          await fetch(resUrl, {
+            method: resourceMode.value==='replace' ? 'PUT' : 'POST',
+            headers:{ 'Content-Type':'application/json',
+                      'X-API-KEY':store.state.apikey },
+            body: JSON.stringify(resBody)
+          });
+
+        }
+
+        datasetLink.value = `${datagouvUrl}/fr/datasets/${datasetId}`;
+        isPublished.value = true;
+      } catch (e:any) {
+        alert(e.message);
+      }
     }
 
     return {
-      isSelectedOrg,
-      selectOrganization,
-      selectedTables,
-      isSelectedTables,
-      validateTables,
-      datasetTitle,
-      datasetDescription,
-      publishDataset,
-      isPublished,
-      datasetLink,
+      /* états UI */
+      isSelectedOrg, selectOrganization,
+      isSelectedTable,
+      selectedTable,
+      validateTable,
+      publicationMode,
+      orgDatasets, isLoadingDatasets, loadDatasets,
+      selectedDataset, selectDataset,
+      resourceMode, datasetResources, selectedResource,
+      datasetTitle, datasetDescription, showMetaForm,
+      publishDataset, isPublished, datasetLink, replaceResource,
+      /* computed store */
       profile: computed(() => store.state.profile),
       activeGristTables: computed(() => store.state.activeGristTables),
-    }
-
+      resourceTitle,
+      isPublicationModeResourceSelected
+    };
   }
 });
 </script>
+
+<style scoped>
+.btn-publish{
+  width: 400px;
+}
+.petite-ligne{
+  font-size: 10px;
+  width: 400px;
+}
+</style>

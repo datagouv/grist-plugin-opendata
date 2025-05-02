@@ -1,16 +1,10 @@
 <template>
   <header-widget />
-
-  <div v-if="!profile.first_name">
-    <token-form />
-  </div>
-
-  <div v-else>
+  <div>
     <span v-if="menuOption">
       <span class="ariane" @click="resetMenu()">Retour à l'accueil</span>
     </span>
     <span v-if="!menuOption">
-      Bonjour <b>{{ profile.first_name }} {{ profile.last_name }}</b>, dites-nous ce qui vous amène.
       <menu-widget />
     </span>
     <div v-if="menuOption === 'publier'">
@@ -22,32 +16,26 @@
     <div v-if="menuOption === 'importer'">
       <importer-form />
     </div>
+    <div v-if="menuOption === 'validata'">
+      <validata-widget />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, onMounted } from 'vue';
+import { defineComponent, computed } from 'vue';
 import HeaderWidget from '../HeaderWidget.vue';
-import TokenForm from './TokenForm.vue';
 import MenuWidget from './MenuWidget.vue';
 import PublierForm from './PublierForm.vue';
 import SchemaForm from './SchemaForm.vue';
 import ImporterForm from './ImporterForm.vue';
 import { useStore } from 'vuex';
+import ValidataWidget from '../validata/ValidataWidget.vue';
 
 export default defineComponent({
   name: 'GristWidget',
-  components: { HeaderWidget, TokenForm, MenuWidget, PublierForm, SchemaForm, ImporterForm },
+  components: { HeaderWidget, MenuWidget, PublierForm, SchemaForm, ImporterForm, ValidataWidget },
   setup() {
-
-    onMounted(async () => {
-        const token = await window.grist.getOption('token_datagouv');
-        const profile = await window.grist.getOption('profile_datagouv');
-        if (token && profile) {
-          store.dispatch('updateToken', token);
-          store.dispatch('updateProfile', profile);
-        }
-    });
 
     const store = useStore();
     window.grist.ready({

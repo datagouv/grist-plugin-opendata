@@ -1,5 +1,4 @@
 <template>
-  <header-widget />
   <!DOCTYPE html>
   <html lang="fr">
     <head>
@@ -32,7 +31,6 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import HeaderWidget from "../HeaderWidget.vue";
 
 import { errors } from "./plugin";
 import ValidationReport from "./ValidationReport.vue";
@@ -57,7 +55,7 @@ const COUNTDOWN_SECONDS = 1;
 
 export default defineComponent({
   name: "ValidataWidget",
-  components: { ValidationReport, SchemaPicker, HeaderWidget },
+  components: { ValidationReport, SchemaPicker },
   setup() {
     async function handleSubmit(event: SubmitEvent) {
       const schemaURL = _get_schema_url(event);
