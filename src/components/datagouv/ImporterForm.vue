@@ -241,7 +241,7 @@ export default defineComponent({
         await window.grist.docApi.applyUserActions([['BulkRemoveRecord', selectedTable.value, recordsToRemove]]);
         ongoingStep.value = 2
 
-        res = await fetch(`${tabularapiUrl}/api/resources/${id}/data/?page_size=50`, {
+        res = await fetch(`${tabularapiUrl}/api/resources/${id}/data/?page_size=200`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
         });
@@ -250,8 +250,9 @@ export default defineComponent({
         }
         const result = await res.json();
         nbPages.value = Math.ceil(result.meta.total / result.meta.page_size) - 1;
-
-
+        if (nbPages.value > 50){
+            nbPages.value = 50
+        }
 
         const resss = await fetch(gristUrl + "/api/docs/" + store.state.docId + "/tables/?auth=" + tokenInfo.token, {
         method: 'GET',
@@ -290,7 +291,7 @@ export default defineComponent({
             }
             //ongoingStep.value = Math.floor((((((i+1) * 100) / nbPages.value) * 5) / 100) + 3)
 
-            let response2 = await fetch(`${tabularapiUrl}/api/resources/${id}/data/?page_size=50&page=${i}`);
+            let response2 = await fetch(`${tabularapiUrl}/api/resources/${id}/data/?page_size=200&page=${i}`);
             if (!response2.ok) {
             throw new Error(`HTTP error! status: ${response2.status}`);
             }
