@@ -256,7 +256,19 @@ export default defineComponent({
     });
 
     const datagouvUrl = process.env.VUE_APP_DATAGOUV_PUBLISH_URL as string;
-    const gristUrl    = process.env.VUE_APP_GRIST_URL            as string;
+
+    let gristUrl = ""
+
+    window.grist.getAccessToken().then(res => {
+    try {
+        gristUrl = res.baseUrl.split("/o/")[0];
+    } catch {
+        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+    }
+    }).catch(() => {
+        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+    });
+
     const gristPublishUrl = process.env.VUE_APP_GRIST_CHEAT_URL as string;
 
     const isPublished = ref(false);

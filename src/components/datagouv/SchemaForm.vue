@@ -67,7 +67,17 @@ export default defineComponent({
     const selectedSchema = ref({})
     const showLoader = ref(false)
     const ongoingStep = ref(0)
-    const gristUrl = process.env.VUE_APP_GRIST_URL
+    let gristUrl = ""
+
+    window.grist.getAccessToken().then(res => {
+    try {
+        gristUrl = res.baseUrl.split("/o/")[0];
+    } catch {
+        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+    }
+    }).catch(() => {
+        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+    });
     
     const getActiveGristTables = async () => {
       let activeGristTables = await window.grist.docApi.listTables();
