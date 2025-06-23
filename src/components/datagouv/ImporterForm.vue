@@ -133,7 +133,18 @@ export default defineComponent({
     const isImported = ref(false)
     const datagouvUrl = process.env.VUE_APP_DATAGOUV_IMPORT_URL
     const tabularapiUrl = process.env.VUE_APP_DATAGOUV_TABULAR_API
-    const gristUrl = process.env.VUE_APP_GRIST_URL
+    let gristUrl = ""
+
+    window.grist.getAccessToken().then(res => {
+    try {
+        gristUrl = res.baseUrl.split("/o/")[0];
+    } catch {
+        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+    }
+    }).catch(() => {
+        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+    });
+
 
     const getDatasetsOrg = async (org: string) => {
         let response = await fetch(datagouvUrl + "/api/1/datasets/?organization=" + org);

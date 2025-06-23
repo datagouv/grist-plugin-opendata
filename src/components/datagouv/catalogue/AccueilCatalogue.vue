@@ -82,7 +82,18 @@ export default defineComponent({
   name: 'AccueilCatalogue',
   components: { HeaderWidget },
   setup() {
-    const gristUrl = process.env.VUE_APP_GRIST_URL ?? ""
+    let gristUrl = ""
+
+    window.grist.getAccessToken().then(res => {
+    try {
+        gristUrl = res.baseUrl.split("/o/")[0];
+    } catch {
+        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+    }
+    }).catch(() => {
+        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+    });
+
     const datagouvUrl = process.env.VUE_APP_DATAGOUV_IMPORT_URL ?? ""
     const docId: any = ref(null)
     const dataGouvOrganization = ref("")
