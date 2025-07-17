@@ -154,7 +154,7 @@
       </span>
       <span>
         <div class="fr-input-group">
-          <label class="fr-label" for="ds-desc">Titre publique de votre fichier</label>
+          <label class="fr-label" for="ds-desc">Titre public de votre fichier</label>
           <input id="ds-title" class="fr-input" v-model="resourceTitle">
         </div>
         <br />
