@@ -9,6 +9,7 @@ interface State {
   publierOrganization: string | null;
   publierTables: string[];
   activeGristTables: string[];
+  activeGristViews: string[];
 }
 
 
@@ -22,7 +23,8 @@ const store = createStore<State>({
     menuOption:         null,
     publierOrganization: null,
     publierTables:      [],
-    activeGristTables:  []
+    activeGristTables:  [],
+    activeGristViews:   []
   },
   mutations: {
     setTableId          (s, v: string) { s.tableId = v; },
@@ -33,6 +35,7 @@ const store = createStore<State>({
     setMenuOption       (s, v: string) { s.menuOption = v; },
     setPublierOrganization (s, v: string|null) { s.publierOrganization = v; },
     setActiveGristTables(s, v: string[]) { s.activeGristTables = v; },
+    setActiveGristViews (s, v: string[]) { s.activeGristViews = v; },
     setPublierTables    (s, v: string[]) { s.publierTables = v; },
     clearAuth           (s) { s.token = s.apikey = ''; s.profile = {}; }
   },
@@ -55,6 +58,7 @@ const store = createStore<State>({
     updateMenuOption        ({ commit }, v) { commit('setMenuOption', v); },
     updatePublierOrganization({ commit }, v){ commit('setPublierOrganization', v); },
     updateActiveGristTables ({ commit }, v) { commit('setActiveGristTables', v); },
+    updateActiveGristViews  ({ commit }, v) { commit('setActiveGristViews', v); },
     updatePublierTables     ({ commit }, v) { commit('setPublierTables', v); }
   },
   getters: {
@@ -68,6 +72,7 @@ const store = createStore<State>({
     menuOption: s => s.menuOption,
     publierOrganization: s => s.publierOrganization,
     activeGristTables:   s => s.activeGristTables,
+    activeGristViews:    s => s.activeGristViews,
     publierTables:       s => s.publierTables
   }
 });
