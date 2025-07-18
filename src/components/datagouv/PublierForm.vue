@@ -33,28 +33,31 @@
     </div>
 
     <div v-if="isSelectedOrg && !isPublicationModeResourceSelected">
-      <fieldset class="fr-fieldset">
+
+      <fieldset>
         <legend class="fr-fieldset__legend">
-          Sélectionnez la table à publier
+          Sélectionnez la table et la vue à publier
         </legend>
-      
-        <div v-for="(item, index) in activeGristTables"
-             :key="'radio-'+index"
-             class="fr-fieldset__element">
-      
-          <div class="fr-radio-group">
+        <template v-for="(item, idx) in activeGristViews" :key="idx">
+          <div class="fr-fieldset__element fr-radio-group fr-radio-group--block" style="width: 100%;">
             <input
               type="radio"
-              :id="'r'+index"
-              name="grist-table"
+              :id="`grist-view-${idx}`"
+              name="grist-view"
               v-model="selectedTable"
               @click="isSelectedTable = true"
               :value="item"
             />
-            <label class="fr-label" :for="'r'+index">{{ item }}</label>
+            <label class="fr-label" :for="`grist-view-${idx}`">
+              {{ item.label}}
+            </label>
           </div>
-        </div>
+        </template>
       </fieldset>
+
+
+
+
     
       <div v-if="isSelectedTable">
         <button class="fr-btn btn-publish" @click="validateTable('remote')">
@@ -192,7 +195,7 @@ export default defineComponent({
 
     const isSelectedOrg     = ref(false);
     const isSelectedTable  = ref(false);
-    const selectedTable    = ref<string | null>(null);
+    const selectedTable    = ref<any | null>(null);
     const resourceTitle = ref<string>('MonFichier')
 
     const publicationModeResource = ref('remote')
@@ -204,10 +207,75 @@ export default defineComponent({
       loadGristTables();
     };
 
-    async function loadGristTables () {
-      const tables = await window.grist.docApi.listTables();
-      store.dispatch('updateActiveGristTables', tables);
-      const docId = await window.grist.docApi.getDocName();
+    async function loadGristTables() {
+      const docId     = await window.grist.docApi.getDocName();
+      const { token } = await window.grist.docApi.getAccessToken({ readOnly: true });
+      const base      = `${gristUrl}/api/docs/${docId}`;
+
+      // Récupérer les tables 
+      const respTables = await fetch(`${base}/tables?auth=${token}`);
+      if (!respTables.ok) throw new Error(`Failed to fetch tables: ${respTables.status}`);
+      const { tables: tablesArray = [] } = await respTables.json() as any;
+      const tableRefs = tablesArray.map((t: any) => t.fields.tableRef);
+
+      // Récupérer les Vues
+      const sqlViews = encodeURIComponent("select * from _grist_Views_section");
+      const respViews = await fetch(`${base}/sql?q=${sqlViews}&auth=${token}`);
+      if (!respViews.ok) throw new Error(`Failed to fetch views: ${respViews.status}`);
+      const { records: views = [] } = await respViews.json() as any;
+      // ne garder que celles qui nous intéressent
+      const matchingViews = views
+        .filter((v: any) => tableRefs.includes(v.fields.tableRef))
+        .filter((v: any) => v.fields.parentId !== 0)
+        .filter((v: any) => v.fields.parentKey !== "custom");
+
+      // Récupérer les champs de section pour ces vues
+      const sqlFields = encodeURIComponent("select * from _grist_Views_section_field");
+      const respFields = await fetch(`${base}/sql?q=${sqlFields}&auth=${token}`);
+      if (!respFields.ok) throw new Error(`Failed to fetch section fields: ${respFields.status}`);
+      const { records: fields = [] } = await respFields.json() as any;
+      // regrouper par parentId (view.id)
+      const fieldsByView: Record<number, number[]> = {};
+      for (const rec of fields) {
+        const { parentId, colRef } = rec.fields;
+        if (!fieldsByView[parentId]) fieldsByView[parentId] = [];
+        fieldsByView[parentId].push(colRef);
+      }
+
+      // Récupérer les colonnes de table pour le mapping colRef -> colId (label)
+      const sqlCols = encodeURIComponent("select * from _grist_Tables_column");
+      const respCols = await fetch(`${base}/sql?q=${sqlCols}&auth=${token}`);
+      if (!respCols.ok) throw new Error(`Failed to fetch table columns: ${respCols.status}`);
+      const { records: cols = [] } = await respCols.json() as any;
+      // construire une map id -> colId
+      const colMap: Record<number, string> = {};
+      for (const rec of cols) {
+        colMap[rec.fields.id] = rec.fields.colId;
+      }
+
+      // Construire enfin viewLabels avec la liste des colonnes pour chaque vue
+      const viewLabels = matchingViews.map((v: any) => {
+        const tbl = tablesArray.find((t: any) => t.fields.tableRef === v.fields.tableRef);
+        const tableId = tbl ? tbl.id : String(v.fields.tableRef);
+
+        const title = v.fields.title
+          ? `Vue '${v.fields.title}'`
+          : `Vue #${v.fields.id}`;
+
+        const colRefs = fieldsByView[v.fields.id] || [];
+        const columns = colRefs.map((c: number) => colMap[c] || `(colRef ${c})`);
+
+        return {
+          table:   tableId,
+          id:      v.fields.id,
+          title,
+          label:   `Table '${tableId}' – ${title}`,
+          columns,
+        };
+      });
+
+      store.dispatch('updateActiveGristTables', tablesArray);
+      store.dispatch('updateActiveGristViews', viewLabels);
       store.dispatch('updateDocId', docId);
     }
 
@@ -215,8 +283,9 @@ export default defineComponent({
       store.dispatch('updatePublierTables', selectedTable.value ? [selectedTable.value] : []);
       isPublicationModeResourceSelected.value = true;
       publicationModeResource.value = mode
-      if (selectedTable.value) resourceTitle.value = selectedTable.value
+      if (selectedTable.value) resourceTitle.value = selectedTable.value.label
     }
+
     const publicationMode   = ref<'new'|'update'|null>(null);
 
     const orgDatasets       = ref<any[]>([]);
@@ -269,26 +338,41 @@ export default defineComponent({
         gristUrl = process.env.VUE_APP_GRIST_URL || '';
     });
 
-    const gristPublishUrl = process.env.VUE_APP_GRIST_CHEAT_URL as string;
-
     const isPublished = ref(false);
     const datasetLink = ref('');
-
-    async function fetchTableRows (tableId: string | null) {
-      if (tableId) {
-      const tokenInfo = await window.grist.docApi.getAccessToken({readOnly: true});
-      const rows: any[] = [];
-      const docId = store.state.docId;
-      const url   = `${gristUrl}/api/docs/${docId}/tables/${tableId}/records?auth=${tokenInfo.token}`;
-      const data  = await fetch(url).then(r => r.json());
-      rows.push(...data.records.map((r: any) => r.fields));
-      return rows;
-      } else return []
-    }
-
+    
     async function replaceResource(r: any){
       selectedResource.value = r
     }
+
+    async function fetchTableRows(
+      tableRef: string | null,
+      colsToKeep: string[]
+    ): Promise<Array<Record<string, any>>> {
+      if (!tableRef) {
+        return [];
+      }
+
+      const tableData = await window.grist.docApi.fetchTable(tableRef);
+      const availableCols = Object.keys(tableData).filter(col =>
+        colsToKeep.includes(col)
+      );
+      const rowCount = availableCols.length
+        ? (tableData[availableCols[0]] as any[]).length
+        : 0;
+
+      const rows: Array<Record<string, any>> = [];
+      for (let i = 0; i < rowCount; i++) {
+        const row: Record<string, any> = {};
+        for (const col of availableCols) {
+          row[col] = (tableData[col] as any[])[i];
+        }
+        rows.push(row);
+      }
+
+      return rows;
+    }
+
 
     async function publishDataset () {
       try {
@@ -310,49 +394,58 @@ export default defineComponent({
           datasetId = (await resp.json()).id;
         }
 
-        if (publicationModeResource.value == 'file') {
-          const rows = await fetchTableRows(selectedTable.value);
-          const csv  = Papa.unparse(rows);
-          const file = new File([csv], `${selectedTable.value}.csv`, { type:'text/csv' });
+        if (publicationModeResource.value === 'file') {
+          const tableRef   = selectedTable.value.table;
+          const colsToKeep = selectedTable.value.columns;
 
-          const upUrl = resourceMode.value==='replace' && selectedResource.value
-            ? `${datagouvUrl}/api/1/datasets/${datasetId}/resources/${selectedResource.value.id}/upload/` : `${datagouvUrl}/api/1/datasets/${datasetId}/upload/`;
+          const rows = await fetchTableRows(tableRef, colsToKeep);
+
+          const csv = Papa.unparse({ fields: colsToKeep, data: rows });
+          const file = new File([csv], `${tableRef}.csv`, { type: 'text/csv' });
+
+          const upUrl = resourceMode.value === 'replace' && selectedResource.value
+            ? `${datagouvUrl}/api/1/datasets/${datasetId}/resources/${selectedResource.value.id}/upload/`
+            : `${datagouvUrl}/api/1/datasets/${datasetId}/upload/`;
           const upForm = new FormData();
           upForm.append('file', file);
 
           const up = await fetch(upUrl, {
-            method:'POST',
-            headers:{ 'X-API-KEY':store.state.apikey },
-            body: upForm
+            method: 'POST',
+            headers: { 'X-API-KEY': store.state.apikey },
+            body: upForm,
           });
           if (!up.ok) throw new Error(`Upload KO ${up.status}`);
           const { id: rid } = await up.json();
 
           const resBody = {
-            title:   resourceTitle.value,
-            filetype:'file',
-            format:  'csv',
-            type:    'main'
+            title:    resourceTitle.value,
+            filetype: 'file',
+            format:   'csv',
+            type:     'main',
           };
-          const resUrl = resourceMode.value==='replace' && selectedResource.value
+          const resUrl = resourceMode.value === 'replace' && selectedResource.value
             ? `${datagouvUrl}/api/1/datasets/${datasetId}/resources/${selectedResource.value.id}/`
             : `${datagouvUrl}/api/1/datasets/${datasetId}/resources/${rid}/`;
 
           await fetch(resUrl, {
-            method: resourceMode.value==='replace' ? 'PUT' : 'PUT',
-            headers:{ 'Content-Type':'application/json',
-                      'X-API-KEY':store.state.apikey },
-            body: JSON.stringify(resBody)
+            method:  'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-API-KEY':     store.state.apikey,
+            },
+            body: JSON.stringify(resBody),
           });
         }
+
+
+        
         if (publicationModeResource.value == 'remote') {
-          
           const resBody = {
             title:   resourceTitle.value,
             filetype:'remote',
             format:  'csv',
             type:    'main',
-            url: gristPublishUrl + '/o/docs/api/docs/' + store.state.docId + '/download/csv?tableId=' + selectedTable.value
+            url: gristUrl + '/o/docs/api/docs/' + store.state.docId + '/download/csv?tableId=' + selectedTable.value.table + '&viewSection=' + selectedTable.value.id
           };
 
           const resUrl = resourceMode.value==='replace'
@@ -365,7 +458,6 @@ export default defineComponent({
                       'X-API-KEY':store.state.apikey },
             body: JSON.stringify(resBody)
           });
-
         }
 
         datasetLink.value = `${datagouvUrl}/fr/datasets/${datasetId}`;
@@ -376,7 +468,6 @@ export default defineComponent({
     }
 
     return {
-      /* états UI */
       isSelectedOrg, selectOrganization,
       isSelectedTable,
       selectedTable,
@@ -387,9 +478,9 @@ export default defineComponent({
       resourceMode, datasetResources, selectedResource,
       datasetTitle, datasetDescription, showMetaForm,
       publishDataset, isPublished, datasetLink, replaceResource,
-      /* computed store */
       profile: computed(() => store.state.profile),
       activeGristTables: computed(() => store.state.activeGristTables),
+      activeGristViews: computed(() => store.state.activeGristViews),
       resourceTitle,
       isPublicationModeResourceSelected
     };
