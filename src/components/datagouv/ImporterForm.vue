@@ -58,6 +58,15 @@
             <label class="fr-label" for="text-input-text">Rechercher un jeu de données</label>
             <input class="fr-input" type="text" id="text-input-text" name="text-input-text" v-model="searchText" @input="searchDatagouv()">
             <br />
+            <label class="fr-label" for="text-input-url">Coller une URL data.gouv.fr (jeu de données ou ressource)</label>
+            <div class="fr-input-group">
+              <input class="fr-input" type="url" id="text-input-url" name="text-input-url" v-model="pastedUrl" placeholder="https://www.data.gouv.fr/fr/datasets/... ou .../r/{resource-id}">
+            </div>
+            <div class="fr-mt-2w">
+              <button class="fr-btn" @click="submitUrl" :disabled="isSubmittingUrl || pastedUrl.trim() === ''">Importer depuis l'URL</button>
+            </div>
+            <p v-if="urlError" class="fr-error-text">{{ urlError }}</p>
+            <br />
         </div>
         <div v-for="resource in resources" v-bind:key="resource.resource_id">
             <div @click="importResource(resource.resource_id)" class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
@@ -125,6 +134,9 @@ export default defineComponent({
     const logoSelectedOrg = ref("")
     const showDatasetSelector = ref(false)
     const searchText = ref("")
+    const pastedUrl = ref("")
+    const urlError = ref("")
+    const isSubmittingUrl = ref(false)
     const resources = ref<Resource[]>([]);
     const selectedTable = ref("")
     const ongoingStep = ref(0)
@@ -221,6 +233,70 @@ export default defineComponent({
 
     const debouncedSearch = debounce(searchDatagouv, 500);
 
+
+    const submitUrl = async () => {
+        urlError.value = "";
+        const url = pastedUrl.value.trim();
+        if (url === "") {
+            urlError.value = "URL manquante.";
+            return;
+        }
+        try {
+            isSubmittingUrl.value = true;
+            // Supporte: /fr/datasets/r/{resourceId} ou /datasets/{slug}/resource/{resourceId}
+            // et /fr/datasets/{slug}
+            const resourceMatch = url.match(/\/datasets\/(?:[^/]+\/)?r(?:esource)?\/?([0-9a-fA-F-]{36})/);
+            const directResourceMatch = url.match(/\/r\/([0-9a-fA-F-]{36})/);
+            const datasetSlugMatch = url.match(/\/datasets\/([^/?#]+)(?:[/?#]|$)/);
+
+            const resourceId = (resourceMatch && resourceMatch[1]) || (directResourceMatch && directResourceMatch[1]);
+            if (resourceId) {
+                await importResource(resourceId);
+                return;
+            }
+
+            if (datasetSlugMatch && datasetSlugMatch[1]) {
+                const slug = datasetSlugMatch[1];
+                const resp = await fetch(`${datagouvUrl}/api/2/datasets/${slug}`);
+                if (!resp.ok) {
+                    throw new Error(`Impossible de récupérer le jeu de données (${resp.status}).`);
+                }
+                const ds = await resp.json();
+                // Récupère les ressources via le lien fourni par l'API v2
+                const resResp = await fetch(ds.resources.href, { headers: { 'Content-Type': 'application/json' } });
+                if (!resResp.ok) {
+                    throw new Error(`Impossible de lister les ressources (${resResp.status}).`);
+                }
+                const resJson = await resResp.json();
+                console.log(resJson)
+                resources.value = [];
+                resJson.data.forEach((resource: { id: any; title: any; extras: any; }) => {
+                    if (resource.extras && resource.extras["analysis:parsing:finished_at"]) {
+                        resources.value.push({
+                            dataset_id: ds.id,
+                            dataset_title: ds.title,
+                            resource_id: resource.id,
+                            resource_title: resource.title,
+                        });
+                    }
+                });
+                if (resources.value.length === 0) {
+                    urlError.value = "Aucune ressource tabulaire détectée pour ce jeu de données.";
+                } else {
+                    showDatasetSelector.value = true;
+                    showInputSearch.value = false;
+                }
+                return;
+            }
+
+            urlError.value = "URL non reconnue. Collez l'URL d'un jeu de données ou d'une ressource data.gouv.fr.";
+        } catch (e: any) {
+            console.error(e);
+            urlError.value = e?.message || "Erreur lors du traitement de l'URL.";
+        } finally {
+            isSubmittingUrl.value = false;
+        }
+    }
 
     const importResource = async (id: string) => {
         ongoingStep.value = 1
@@ -362,6 +438,10 @@ export default defineComponent({
         currentStep,
         selectOrganization,
         showInputSearch,
+        pastedUrl,
+        urlError,
+        isSubmittingUrl,
+        submitUrl,
         logoSelectedOrg,
         showDatasetSelector,
         searchText,
