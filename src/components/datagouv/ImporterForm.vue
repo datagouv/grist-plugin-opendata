@@ -251,6 +251,16 @@ export default defineComponent({
 
             const resourceId = (resourceMatch && resourceMatch[1]) || (directResourceMatch && directResourceMatch[1]);
             if (resourceId) {
+                // Vérifie que la ressource est accessible via l'API tabulaire avant de lancer l'import
+                const check = await fetch(`${tabularapiUrl}/api/resources/${resourceId}/data/?page_size=1`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (!check.ok) {
+                    throw new Error(check.status === 404
+                      ? "Cette ressource n'est pas disponible dans l'API tabulaire (404). Elle n'est peut-être pas tabularisée ou est privée."
+                      : `Erreur lors de la vérification de la ressource (${check.status}).`);
+                }
                 await importResource(resourceId);
                 return;
             }
@@ -268,7 +278,6 @@ export default defineComponent({
                     throw new Error(`Impossible de lister les ressources (${resResp.status}).`);
                 }
                 const resJson = await resResp.json();
-                console.log(resJson)
                 resources.value = [];
                 resJson.data.forEach((resource: { id: any; title: any; extras: any; }) => {
                     if (resource.extras && resource.extras["analysis:parsing:finished_at"]) {
@@ -299,6 +308,7 @@ export default defineComponent({
     }
 
     const importResource = async (id: string) => {
+        urlError.value = "";
         ongoingStep.value = 1
         showLoader.value = true;
         const tokenInfo = await window.grist.docApi.getAccessToken({readOnly: true});
@@ -333,7 +343,10 @@ export default defineComponent({
           headers: { 'Content-Type': 'application/json' }
         });
         if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+          showLoader.value = false;
+          isImported.value = false;
+          urlError.value = res.status === 404 ? "Ressource introuvable dans l'API tabulaire (404). Vérifiez l'ID ou que la ressource est tabularisée/publique." : `Erreur API tabulaire (${res.status}).`;
+          return;
         }
         const result = await res.json();
         nbPages.value = Math.ceil(result.meta.total / result.meta.page_size) - 1;
