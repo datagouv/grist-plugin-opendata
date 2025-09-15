@@ -218,11 +218,21 @@ export default defineComponent({
       const { tables: tablesArray = [] } = await respTables.json() as any;
       const tableRefs = tablesArray.map((t: any) => t.fields.tableRef);
 
-      // Récupérer les Vues
+      // Récupérer les Vues (sections)
       const sqlViews = encodeURIComponent("select * from _grist_Views_section");
       const respViews = await fetch(`${base}/sql?q=${sqlViews}&auth=${token}`);
       if (!respViews.ok) throw new Error(`Failed to fetch views: ${respViews.status}`);
       const { records: views = [] } = await respViews.json() as any;
+
+      // Récupérer les conteneurs de vues pour obtenir les noms visibles dans la sidebar
+      const sqlContainers = encodeURIComponent("select * from _grist_Views");
+      const respContainers = await fetch(`${base}/sql?q=${sqlContainers}&auth=${token}`);
+      if (!respContainers.ok) throw new Error(`Failed to fetch view containers: ${respContainers.status}`);
+      const { records: containers = [] } = await respContainers.json() as any;
+      const viewNameById: Record<number, string> = {};
+      for (const c of containers) {
+        viewNameById[c.fields.id] = c.fields.name || `Vue #${c.fields.id}`;
+      }
       // ne garder que celles qui nous intéressent
       const matchingViews = views
         .filter((v: any) => tableRefs.includes(v.fields.tableRef))
@@ -258,9 +268,12 @@ export default defineComponent({
         const tbl = tablesArray.find((t: any) => t.fields.tableRef === v.fields.tableRef);
         const tableId = tbl ? tbl.id : String(v.fields.tableRef);
 
-        const title = v.fields.title
-          ? `Vue '${v.fields.title}'`
-          : `Vue #${v.fields.id}`;
+        // Nom public de la vue (celui de la sidebar), fallback sur le titre de section
+        const parentName = viewNameById[v.fields.parentId];
+        const sectionTitle = v.fields.title;
+        const title = sectionTitle
+          ? `Vue '${sectionTitle}'`
+          : (parentName || `Vue #${v.fields.id}`);
 
         const colRefs = fieldsByView[v.fields.id] || [];
         const columns = colRefs.map((c: number) => colMap[c] || `(colRef ${c})`);
