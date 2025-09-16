@@ -52,6 +52,7 @@
         </div>
     </div>
 
+    <p v-if="urlError" class="fr-error-text">{{ urlError }}</p>
     <div v-if="currentStep === 'searchDataset'">
     <!-- 3/ cette page est celle qui est affichée pour rechercher un jeu de données -->
         <div v-if="showInputSearch">
@@ -67,7 +68,6 @@
             </div>
             <br />
         </div>
-        <p v-if="urlError" class="fr-error-text">{{ urlError }}</p>
         <div v-for="resource in resources" v-bind:key="resource.resource_id">
             <div @click="importResource(resource.resource_id)" class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
                 <div class="fr-tile__body">
@@ -424,8 +424,15 @@ export default defineComponent({
             console.log("arr", arr)
 
             const nullArray = new Array(arr[Object.keys(arr)[0]].length).fill(null);
-            let records = [['BulkAddRecord', selectedTable.value, nullArray, arr]];
-            await window.grist.docApi.applyUserActions(records);
+            try {
+                let records = [["BulkAddRecord", selectedTable.value, nullArray, arr]];
+                await window.grist.docApi.applyUserActions(records);
+            } catch (e: any) {
+                showLoader.value = false;
+                isImported.value = false;
+                urlError.value = e?.message || "Erreur lors de l'insertion des données (BulkAddRecord).";
+                return;
+            }
 
         }
         showLoader.value = false
@@ -486,4 +493,8 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.fr-error-text{
+  margin-bottom: 1rem;
+  display: block;
+}
 </style>
