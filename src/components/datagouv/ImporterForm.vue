@@ -65,9 +65,9 @@
             <div class="fr-mt-2w">
               <button class="fr-btn" @click="submitUrl" :disabled="isSubmittingUrl || pastedUrl.trim() === ''">Importer depuis l'URL</button>
             </div>
-            <p v-if="urlError" class="fr-error-text">{{ urlError }}</p>
             <br />
         </div>
+        <p v-if="urlError" class="fr-error-text">{{ urlError }}</p>
         <div v-for="resource in resources" v-bind:key="resource.resource_id">
             <div @click="importResource(resource.resource_id)" class="fr-tile fr-tile--sm fr-tile--horizontal fr-enlarge-link" id="tile-6661">
                 <div class="fr-tile__body">
@@ -251,16 +251,6 @@ export default defineComponent({
 
             const resourceId = (resourceMatch && resourceMatch[1]) || (directResourceMatch && directResourceMatch[1]);
             if (resourceId) {
-                // Vérifie que la ressource est accessible via l'API tabulaire avant de lancer l'import
-                const check = await fetch(`${tabularapiUrl}/api/resources/${resourceId}/data/?page_size=1`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                if (!check.ok) {
-                    throw new Error(check.status === 404
-                      ? "Cette ressource n'est pas disponible dans l'API tabulaire (404). Elle n'est peut-être pas tabularisée ou est privée."
-                      : `Erreur lors de la vérification de la ressource (${check.status}).`);
-                }
                 await importResource(resourceId);
                 return;
             }
@@ -311,6 +301,28 @@ export default defineComponent({
         urlError.value = "";
         ongoingStep.value = 1
         showLoader.value = true;
+
+        // Vérifie d'abord que la ressource est accessible via l'API tabulaire
+        try {
+            const probe = await fetch(`${tabularapiUrl}/api/resources/${id}/data/?page_size=1`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (!probe.ok) {
+                showLoader.value = false;
+                isImported.value = false;
+                urlError.value = probe.status === 404
+                    ? "Ressource introuvable dans l'API tabulaire (404). Vérifiez l'ID ou que la ressource est tabularisée/publique."
+                    : `Erreur lors de l'accès à l'API tabulaire (${probe.status}).`;
+                return;
+            }
+        } catch (e: any) {
+            showLoader.value = false;
+            isImported.value = false;
+            urlError.value = e?.message || "Erreur réseau lors de la vérification de la ressource.";
+            return;
+        }
+
         const tokenInfo = await window.grist.docApi.getAccessToken({readOnly: true});
         const ress = await fetch(gristUrl + "/api/docs/" + store.state.docId + "/tables/" + selectedTable.value + "/records?auth=" + tokenInfo.token, {
         method: 'GET',
