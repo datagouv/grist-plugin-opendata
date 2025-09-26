@@ -21,26 +21,18 @@ export const utilsGetMetadata = async (gristUrl: string, docId: any, table: stri
     return taxonomies;
 }
 
-const accentMap: { [key: string]: string } = {
-    'á': 'a', 'à': 'a', 'â': 'a', 'ä': 'a', 'ã': 'a', 'å': 'a', 'ā': 'a',
-    'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e', 'ē': 'e', 'ė': 'e', 'ę': 'e',
-    'í': 'i', 'ì': 'i', 'î': 'i', 'ï': 'i', 'ī': 'i', 'į': 'i',
-    'ó': 'o', 'ò': 'o', 'ô': 'o', 'ö': 'o', 'õ': 'o', 'ø': 'o', 'ō': 'o',
-    'ú': 'u', 'ù': 'u', 'û': 'u', 'ü': 'u', 'ū': 'u',
-    'ç': 'c', 'ć': 'c', 'č': 'c',
-    'ñ': 'n', 'ń': 'n',
-    'ß': 'ss',
-    'ÿ': 'y',
-};
-
-const removeAccents = (str: string): string => {
-    return str.split('').map(char => accentMap[char] || char).join('');
-};
 
 const removeLeadingUnderscores = (str: string): string => {
     return str.replace(/^_+/, '');
 };
 
 export function processString(str: string) {
-    return removeLeadingUnderscores(removeAccents(str.replace(' ', '_').replace(':', '_')));
+    // 1) Normalize and strip accents using Unicode combining marks
+    const withoutAccents = str.normalize('NFD').replace(/\p{M}+/gu, '');
+    // 2) Replace any sequence of non-alphanumeric characters with a single underscore
+    const underscored = withoutAccents.replace(/[^A-Za-z0-9]+/g, '_');
+    // 3) Trim leading/trailing underscores
+    const trimmed = underscored.replace(/^_+|_+$/g, '');
+    // 4) Ensure we don't start with underscores after trimming (legacy helper)
+    return removeLeadingUnderscores(trimmed);
 }
