@@ -35,7 +35,23 @@ L'onglet validata permet de valider une table Grist avec un schéma au format Ta
 npm install
 ```
 
+### Configuration du plugin
+
+Dans un environnement de développement, récupérez la liste des variables d'environnement :
+```bash
+cp .env.dev .env
+```
+
+Et procédez aux adaptations `.env` comme décrit dans les commentaires.
+
+Enfin sourcez le fichier pour charger les variables :
+```bash
+source .env
+```
+
 ### Compilation et _hot reload_ pour le développement
+
+Après avoir chargé les variables d'environnement:
 
 ```
 npm run serve
