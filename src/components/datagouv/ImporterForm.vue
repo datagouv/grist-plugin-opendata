@@ -66,7 +66,7 @@
                         <h3 class="fr-tile__title">
                             <a href="#">{{ resource.dataset_title }}</a>
                         </h3>
-                        <p class="fr-tile__detail">{{ resource.resource_title }}</p>
+                        <p class="fr-tile__detail">{{ resource.resource_title }}<span v-if="resource.organization_name">&nbsp;— <strong>{{ resource.organization_name }}</strong></span></p>
                     </div>
                 </div>
             </div>
@@ -105,6 +105,7 @@ interface Resource {
   dataset_title: any;
   resource_id: any;
   resource_title: any;
+  organization_name?: any;
 }
 
 function debounce<T extends () => void>(fn: T, delay: number): () => void {
@@ -154,7 +155,7 @@ export default defineComponent({
         const data = await response.json();
         console.log(data.data)
         resources.value = []
-        data.data.forEach((dataset: { resources: any[]; id: any; title: any; }) => {
+        data.data.forEach((dataset: { resources: any[]; id: any; title: any; organization?: { name?: string } }) => {
             dataset.resources.forEach((resource) => {
                 if (resource.extras && resource.extras["analysis:parsing:finished_at"]) {
                     resources.value.push({
@@ -162,6 +163,7 @@ export default defineComponent({
                         "dataset_title": dataset.title,
                         "resource_id": resource.id,
                         "resource_title": resource.title,
+                        "organization_name": dataset.organization?.name,
                     });
                 }
             })
@@ -191,7 +193,7 @@ export default defineComponent({
         }
         const result = await response.json();
         resources.value = []
-        result.data.forEach(async (dataset: { resources: { href: string; }; id: any; title: any; }) => {
+        result.data.forEach(async (dataset: { resources: { href: string; }; id: any; title: any; organization?: { name?: string } }) => {
           const response2 = await fetch(dataset.resources.href, {
               method: 'GET',
               headers: {
@@ -209,6 +211,7 @@ export default defineComponent({
                   "dataset_title": dataset.title,
                   "resource_id": resource.id,
                   "resource_title": resource.title,
+                  "organization_name": dataset.organization?.name,
                 });
               }
             });
@@ -291,7 +294,6 @@ export default defineComponent({
             }
         }
         ongoingStep.value = 3
-
 
         for (let i = 0; i <= nbPages.value; i++) {
             let calculus = Math.floor((((((i+1) * 100) / nbPages.value) * 5) / 100) + 3)
