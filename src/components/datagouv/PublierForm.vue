@@ -180,6 +180,11 @@ import { useStore } from 'vuex';
 import AuthentificationConnection from './AuthentificationConnection.vue';
 import Papa from 'papaparse';
 
+interface ColData {
+  colId: string;
+  displayColId: string|null;
+}
+
 export default defineComponent({
   name: 'PublierForm',
   components: { AuthentificationConnection },
@@ -248,9 +253,13 @@ export default defineComponent({
       if (!respCols.ok) throw new Error(`Failed to fetch table columns: ${respCols.status}`);
       const { records: cols = [] } = await respCols.json() as any;
       // construire une map id -> colId
-      const colMap: Record<number, string> = {};
+      const colMap: Record<number, {colId: string, displayCol: number}> = {};
       for (const rec of cols) {
-        colMap[rec.fields.id] = rec.fields.colId;
+        const {id, colId, displayCol} = rec.fields;
+        colMap[id] = {
+          colId,
+          displayCol // If the column is a regular one, the value is `0`, which does not identify any colId
+        };
       }
 
       // Construire enfin viewLabels avec la liste des colonnes pour chaque vue
@@ -263,7 +272,10 @@ export default defineComponent({
           : `Vue #${v.fields.id}`;
 
         const colRefs = fieldsByView[v.fields.id] || [];
-        const columns = colRefs.map((c: number) => colMap[c] || `(colRef ${c})`);
+        const columns: ColData[] = colRefs.map((c: number) => ({
+          colId: colMap[c].colId || `(colRef ${c})`,
+          displayColId: colMap[colMap[c].displayCol]?.colId || null,
+        }));
 
         return {
           table:   tableId,
@@ -346,16 +358,17 @@ export default defineComponent({
     }
 
     async function fetchTableRows(
-      tableRef: string | null,
-      colsToKeep: string[]
+     tableRef: string | null,
+      colsToKeep: ColData[]
     ): Promise<Array<Record<string, any>>> {
       if (!tableRef) {
         return [];
       }
 
       const tableData = await window.grist.docApi.fetchTable(tableRef);
+      const colInfoMap = new Map<string, ColData>(colsToKeep.map(c => [c.colId, c]));
       const availableCols = Object.keys(tableData).filter(col =>
-        colsToKeep.includes(col)
+        colInfoMap.has(col)
       );
       const rowCount = availableCols.length
         ? (tableData[availableCols[0]] as any[]).length
@@ -365,12 +378,31 @@ export default defineComponent({
       for (let i = 0; i < rowCount; i++) {
         const row: Record<string, any> = {};
         for (const col of availableCols) {
-          row[col] = (tableData[col] as any[])[i];
+          const displayCol = colInfoMap.get(col)?.displayColId; // In case of references, we would like to get the display col
+          const value = (tableData[displayCol || col] as any[])[i];
+          row[col] = sanitizeValue(value);
         }
         rows.push(row);
       }
 
       return rows;
+    }
+
+    /**
+     * Sanitize the passed value from a Grist table record.
+     * If the value is an array:
+     * 1. Remove the possible "L" prefix value
+     * 2. Stringify the value for the CSV.
+     */
+    function sanitizeValue(value: any) {
+      if (!Array.isArray(value)) {
+        return value;
+      }
+      let sanitizedValue: any[] = value;
+      if (sanitizedValue[0] === "L") {
+        sanitizedValue = sanitizedValue.slice(1);
+      }
+      return sanitizedValue.join(",");
     }
 
 
@@ -396,11 +428,12 @@ export default defineComponent({
 
         if (publicationModeResource.value === 'file') {
           const tableRef   = selectedTable.value.table;
-          const colsToKeep = selectedTable.value.columns;
+          const colsToKeep: ColData[] = selectedTable.value.columns;
+
 
           const rows = await fetchTableRows(tableRef, colsToKeep);
 
-          const csv = Papa.unparse({ fields: colsToKeep, data: rows });
+          const csv = Papa.unparse({ fields: colsToKeep.map(c => c.colId), data: rows });
           const file = new File([csv], `${tableRef}.csv`, { type: 'text/csv' });
 
           const upUrl = resourceMode.value === 'replace' && selectedResource.value
