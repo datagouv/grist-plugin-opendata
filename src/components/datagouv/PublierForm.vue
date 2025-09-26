@@ -61,12 +61,12 @@
     
       <div v-if="isSelectedTable">
         <button class="fr-btn btn-publish" @click="validateTable('remote')">
-          Publier la table en faisant une référence à ce fichier grist sur data.gouv.fr
+          Publier sur data.gouv.fr en faisant référence à la table Grist
         </button>
-        <div class="petite-ligne"><b>pré-requis :</b> rendre votre document grist en accès public</div>
+        <div class="petite-ligne"><b>pré-requis :</b> rendre votre document Grist en accès public</div>
         <br />
-        <button class="fr-btn fr-btn--secondary btn-publish" @click="validateTable('file')">Publier la table en uploadant le fichier sur data.gouv.fr</button>
-        <div class="petite-ligne"><b>Attention : </b>Les modifications effectuées sur ce grist ne seront visibles que si vous mettez à jour manuellement la table via ce plugin</div>
+        <button class="fr-btn fr-btn--secondary btn-publish" @click="validateTable('file')">Publier sur data.gouv.fr en téléchargeant la table Grist</button>
+        <div class="petite-ligne"><b>Attention : </b>Les modifications effectuées sur cette table Grist ne seront visibles sur data.gouv.fr que si vous faites une mise à jour manuelle via ce plugin</div>
       </div>
     </div>
 
