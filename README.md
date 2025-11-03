@@ -35,7 +35,7 @@ La manière la plus simple de développer avec ce plugin est d'utiliser Docker :
 
 ```bash
 # 1. Copier le fichier de configuration (première fois uniquement)
-cp env.dev .env
+cp .env.dev .env
 # Puis éditez le fichier .env pour configurer VUE_APP_DATAGOUV_CLIENT_ID si nécessaire
 
 # 2. Lancer Grist + Plugin avec hot-reload

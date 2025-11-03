@@ -150,7 +150,7 @@ export default defineComponent({
 
     window.grist.getAccessToken().then(res => {
     try {
-        gristUrl = res.baseUrl.split("/o/")[0];
+        gristUrl = res.baseUrl.split("://")[0] + "://" + res.baseUrl.split("://")[1].split("/")[0];
     } catch {
         gristUrl = process.env.VUE_APP_GRIST_URL || '';
     }

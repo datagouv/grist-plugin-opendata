@@ -21,7 +21,7 @@ services:
   plugin:
     build:
       context: .
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: grist-plugin-opendata-dev
     ports:
       - "8080:8080"
