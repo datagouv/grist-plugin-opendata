@@ -1,0 +1,70 @@
+name: Build and push
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  IMAGE_NAME: grist-plugin-opendata
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set image version
+        id: version
+        run: echo "version=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+
+      # The build args are inlined into the bundle by Vue CLI, so an unset one
+      # produces a green build and a white-screened app rather than a failure.
+      - name: Check build args are set
+        env:
+          ARGS: >-
+            VUE_APP_VALIDATA_URL=${{ vars.VUE_APP_VALIDATA_URL }}
+            VUE_APP_DATAGOUV_CLIENT_ID=${{ vars.VUE_APP_DATAGOUV_CLIENT_ID }}
+            VUE_APP_DATAGOUV_IMPORT_URL=${{ vars.VUE_APP_DATAGOUV_IMPORT_URL }}
+            VUE_APP_DATAGOUV_TABULAR_API=${{ vars.VUE_APP_DATAGOUV_TABULAR_API }}
+            VUE_APP_GRIST_CHEAT_URL=${{ vars.VUE_APP_GRIST_CHEAT_URL }}
+            VUE_APP_GRIST_URL=${{ vars.VUE_APP_GRIST_URL }}
+            VUE_APP_DATAGOUV_PUBLISH_URL=${{ vars.VUE_APP_DATAGOUV_PUBLISH_URL }}
+        run: |
+          missing=""
+          for arg in $ARGS; do
+            case "$arg" in
+              *=) [ -n "${arg#*=}" ] || missing="$missing ${arg%%=*}" ;;
+            esac
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Unset build args:$missing"
+            exit 1
+          fi
+
+      - name: Log in to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.CONTAINER_REGISTRY_SERVER }}
+          username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ vars.CONTAINER_REGISTRY_SERVER }}/${{ vars.CONTAINER_REGISTRY_NAMESPACE }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
+            ${{ vars.CONTAINER_REGISTRY_SERVER }}/${{ vars.CONTAINER_REGISTRY_NAMESPACE }}/${{ env.IMAGE_NAME }}:latest
+          build-args: |
+            VUE_APP_VALIDATA_URL=${{ vars.VUE_APP_VALIDATA_URL }}
+            VUE_APP_DATAGOUV_CLIENT_ID=${{ vars.VUE_APP_DATAGOUV_CLIENT_ID }}
+            VUE_APP_DATAGOUV_IMPORT_URL=${{ vars.VUE_APP_DATAGOUV_IMPORT_URL }}
+            VUE_APP_DATAGOUV_TABULAR_API=${{ vars.VUE_APP_DATAGOUV_TABULAR_API }}
+            VUE_APP_GRIST_CHEAT_URL=${{ vars.VUE_APP_GRIST_CHEAT_URL }}
+            VUE_APP_GRIST_URL=${{ vars.VUE_APP_GRIST_URL }}
+            VUE_APP_DATAGOUV_PUBLISH_URL=${{ vars.VUE_APP_DATAGOUV_PUBLISH_URL }}
