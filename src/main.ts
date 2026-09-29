@@ -3,7 +3,6 @@ import App from './App.vue';
 import router from './router';
 import '@gouvfr/dsfr/dist/dsfr.min.css'
 import '@gouvfr/dsfr/dist/utility/utility.min.css'
-import '@gouvfr/dsfr/dist/dsfr.min.css'
 
 import VueDsfr from '@gouvminint/vue-dsfr';
 import '@gouvminint/vue-dsfr/styles';
