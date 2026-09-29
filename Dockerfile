@@ -2,15 +2,17 @@ FROM node:24-alpine
 
 WORKDIR /app
 
+RUN corepack enable
+
 # Copy package files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 # Install dependencies
-RUN npm ci
+RUN pnpm install --frozen-lockfile
 
 # Expose dev server port
 EXPOSE 8080
 
 # Start development server
-CMD ["npm", "run", "serve"]
+CMD ["pnpm", "run", "serve"]
 
