@@ -62,7 +62,7 @@ docker run -p 8484:8484 -it gristlabs/grist
 ```
 
 ```
-npm install
+pnpm install
 ```
 
 ### Configuration du plugin
@@ -84,18 +84,18 @@ source .env
 Après avoir chargé les variables d'environnement:
 
 ```
-npm run serve
+pnpm run serve
 ```
 
 ### Compilation et minification pour la production
 
 ```
-npm run build
+pnpm run build
 ```
 
 ### Analyse avec [ESLint](https://eslint.org/)
 ```
-npm run lint
+pnpm run lint
 ```
 
 ### Configuration personnalisée

@@ -1,0 +1,5 @@
+allowBuilds:
+  '@gouvfr/dsfr': true
+  core-js: true
+  vue-demi: true
+  yorkie: false
