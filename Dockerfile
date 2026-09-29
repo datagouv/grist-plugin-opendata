@@ -14,5 +14,5 @@ RUN pnpm install --frozen-lockfile
 EXPOSE 8080
 
 # Start development server
-CMD ["pnpm", "run", "serve"]
+CMD ["pnpm", "run", "dev"]
 

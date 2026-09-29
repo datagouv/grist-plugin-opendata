@@ -11,7 +11,7 @@
         </div>
     </div>
 
-    <div v-if="!showLoader && isImported">
+    <div v-if="!showLoader">
         🎉 Template importé dans la table {{ selectedTable }}
     </div>
 
@@ -57,14 +57,22 @@ import { defineComponent, computed, onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import { processString } from '@/utils';
 
+type Schema = {
+  name: string
+  title?: string
+  description?: string
+  schema_url: string
+  [key: string]: unknown
+}
+
 export default defineComponent({
   name: 'PublierForm',
   components: { },
   setup() {
     const store = useStore();
     const selectedTable = ref("")
-    const schemas = ref([])
-    const selectedSchema = ref({})
+    const schemas = ref<Schema[]>([])
+    const selectedSchema = ref<Partial<Schema>>({})
     const showLoader = ref(false)
     const ongoingStep = ref(0)
     let gristUrl = ""
@@ -73,10 +81,10 @@ export default defineComponent({
     try {
         gristUrl = res.baseUrl.split("/o/")[0];
     } catch {
-        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+        gristUrl = import.meta.env.VUE_APP_GRIST_URL || '';
     }
     }).catch(() => {
-        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+        gristUrl = import.meta.env.VUE_APP_GRIST_URL || '';
     });
     
     const getActiveGristTables = async () => {

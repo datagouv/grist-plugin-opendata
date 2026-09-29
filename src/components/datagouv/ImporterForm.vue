@@ -144,18 +144,18 @@ export default defineComponent({
     const nbPages = ref(0)
     const showLoader = ref(false)
     const isImported = ref(false)
-    const datagouvUrl = process.env.VUE_APP_DATAGOUV_IMPORT_URL
-    const tabularapiUrl = process.env.VUE_APP_DATAGOUV_TABULAR_API
+    const datagouvUrl = import.meta.env.VUE_APP_DATAGOUV_IMPORT_URL
+    const tabularapiUrl = import.meta.env.VUE_APP_DATAGOUV_TABULAR_API
     let gristUrl = ""
 
     window.grist.getAccessToken().then(res => {
     try {
         gristUrl = res.baseUrl.split("/o/")[0];
     } catch {
-        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+        gristUrl = import.meta.env.VUE_APP_GRIST_URL || '';
     }
     }).catch(() => {
-        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+        gristUrl = import.meta.env.VUE_APP_GRIST_URL || '';
     });
 
 
@@ -183,10 +183,10 @@ export default defineComponent({
         console.log(data.data)
     }
 
-    const selectOrganization = async (org: string|null, logo: string) => {
+    const selectOrganization = async (org: string|null, logo: string|null) => {
         showDatasetSelector.value = true;
         if (org){
-            logoSelectedOrg.value = logo
+            logoSelectedOrg.value = logo ?? ''
             showInputSearch.value = false;
             await getDatasetsOrg(org);
         }

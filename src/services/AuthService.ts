@@ -1,7 +1,7 @@
 import OauthAPI from '@/services/OauthAPI';
 
-const BASE_URL  = process.env.VUE_APP_DATAGOUV_PUBLISH_URL  ?? 'https://www.data.gouv.fr';
-const CLIENT_ID = process.env.VUE_APP_DATAGOUV_CLIENT_ID ?? '';
+const BASE_URL  = import.meta.env.VUE_APP_DATAGOUV_PUBLISH_URL  ?? 'https://www.data.gouv.fr';
+const CLIENT_ID = import.meta.env.VUE_APP_DATAGOUV_CLIENT_ID ?? '';
 
 const api = new OauthAPI();
 
