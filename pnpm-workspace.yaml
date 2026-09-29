@@ -1,5 +1,7 @@
+minimumReleaseAge: 5760
 allowBuilds:
-  '@gouvfr/dsfr': true
-  core-js: true
-  vue-demi: true
+  '@gouvfr/dsfr': false
+  core-js: false
+  vue-demi: false
   yorkie: false
+  
