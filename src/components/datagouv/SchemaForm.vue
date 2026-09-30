@@ -88,9 +88,9 @@ export default defineComponent({
     });
     
     const getActiveGristTables = async () => {
-      let activeGristTables = await window.grist.docApi.listTables();
+      const activeGristTables = await window.grist.docApi.listTables();
       store.dispatch('updateActiveGristTables', activeGristTables);
-      let docId = await window.grist.docApi.getDocName();
+      const docId = await window.grist.docApi.getDocName();
       store.dispatch('updateDocId', docId);
     }
 
@@ -126,7 +126,7 @@ export default defineComponent({
         throw new Error(`HTTP error! status: ${res4.status}`);
         }
         const records = await res4.json();
-        let recordsToRemove: any[] = []
+        const recordsToRemove: any[] = []
         records.records.forEach((r: any) => {
             recordsToRemove.push(r.id)
         })
@@ -180,7 +180,7 @@ export default defineComponent({
         result.fields.forEach(async (item: { name: string; }) => {
             const processedKey = processString(item.name);
 
-            let ress = await window.grist.docApi.applyUserActions([['AddColumn', selectedTable.value, processedKey, { isFormula: true, type: 'Any', formula: '' }]]);
+            const ress = await window.grist.docApi.applyUserActions([['AddColumn', selectedTable.value, processedKey, { isFormula: true, type: 'Any', formula: '' }]]);
             await window.grist.docApi.applyUserActions([['AddRecord', "_grist_Views_section_field", null, { parentPos: null, parentId: parentId, colRef: ress.retValues[0].colRef }]]);
             cpt += 1
             if (cpt == result.fields.length){

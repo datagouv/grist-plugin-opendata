@@ -157,7 +157,7 @@ interface Record {
         Public: boolean;
         URL_Open_Data: string;
         Frequence_MaJ: number;
-        Licence: Number;
+        Licence: number;
         Mots_Cles: Array<string>;
     };
 }
@@ -216,8 +216,8 @@ export default defineComponent({
           isToken.value = true
         }
 
-        let url = gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Catalogue/records?auth=" + tokenInfo.value.token
-        let data = await queryUrl(url)
+        const url = gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Catalogue/records?auth=" + tokenInfo.value.token
+        const data = await queryUrl(url)
         if (data.records.length == 0) {
             isCatalogue.value = false
         } else {
@@ -250,8 +250,8 @@ export default defineComponent({
     });
 
     watch(shouldPublishDataset, async () => {
-        let url = gristUrl + "/api/docs/" + docId.value + "/tables/Catalogue/records?auth=" + tokenInfo.value.token
-        let data = await queryUrl(url)
+        const url = gristUrl + "/api/docs/" + docId.value + "/tables/Catalogue/records?auth=" + tokenInfo.value.token
+        const data = await queryUrl(url)
         records.value = data.records
         recordToDataset.value = null;
         showCatalog.value = false;
@@ -274,8 +274,8 @@ export default defineComponent({
 
     const publishDataset = async () => {
         if (recordToDataset.value && recordToDataset.value.fields) {
-            let frequencyData = await queryUrl(gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Frequency/records?filter={\"id\": [" + recordToDataset.value.fields.Frequence_MaJ + "]}&auth=" + tokenInfo.value.token)
-            let licenceData = await queryUrl(gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Licence/records?filter={\"id\": [" + recordToDataset.value.fields.Licence + "]}&auth=" + tokenInfo.value.token)
+            const frequencyData = await queryUrl(gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Frequency/records?filter={\"id\": [" + recordToDataset.value.fields.Frequence_MaJ + "]}&auth=" + tokenInfo.value.token)
+            const licenceData = await queryUrl(gristUrl + "/api/docs/" + docId.value + "/tables/Ref_Licence/records?filter={\"id\": [" + recordToDataset.value.fields.Licence + "]}&auth=" + tokenInfo.value.token)
             let licence = null;
             let frequency = null;
             let tags = null;
@@ -289,7 +289,7 @@ export default defineComponent({
                 tags = recordToDataset.value.fields.Mots_Cles.filter(item => item !== "L")
             }
             if (recordToDataset.value.fields.Description != '') {
-                let body = {
+                const body = {
                     title: recordToDataset.value.fields.Titre,
                     description: recordToDataset.value.fields.Description,
                     frequency: frequency,
@@ -301,7 +301,7 @@ export default defineComponent({
                     }
                 }
 
-                let headers = {
+                const headers = {
                     'Content-Type': 'application/json',
                     'X-API-KEY': store.state.token
                 }
@@ -341,14 +341,14 @@ export default defineComponent({
         const title = `Catalogue des données de l'organisation ${publishOrgaName.value}`;
         const description = `Ceci est un inventaire des données de ${publishOrgaName.value}.\nCe catalogue est géré directement sur l'outil open source \`Grist\`.\nCe jeu de donnée contient une liste de l'ensemble des jeux de données de l'organisation. Il est mis à jour en temps réel.`;
 
-        let body = {
+        const body = {
             title: title,
             description: description,
             organization: {
                 id: publishOrga.value
             }
         }
-        let headers = {
+        const headers = {
             'Content-Type': 'application/json',
             'X-API-KEY': store.state.token
         }
@@ -360,7 +360,7 @@ export default defineComponent({
         )
         catalogueId.value = data.id
 
-        let bodyResource = {
+        const bodyResource = {
           title: "catalogue.csv",
           format: "csv",
           type: "main",

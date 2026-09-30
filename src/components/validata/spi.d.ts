@@ -2,7 +2,6 @@
  */
 
 import type { TableData } from "./types/records";
-import type { Error } from "./types/report";
 
 /**
  * Interface for interacting with Grist

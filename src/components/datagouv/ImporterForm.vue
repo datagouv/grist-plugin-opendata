@@ -121,7 +121,6 @@ function debounce<T extends () => void>(fn: T, delay: number): () => void {
   let timeoutID: number;
   return () => {
     clearTimeout(timeoutID);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     timeoutID = window.setTimeout(() => fn(), delay);
   };
 }
@@ -160,7 +159,7 @@ export default defineComponent({
 
 
     const getDatasetsOrg = async (org: string) => {
-        let response = await fetch(datagouvUrl + "/api/1/datasets/?organization=" + org);
+        const response = await fetch(datagouvUrl + "/api/1/datasets/?organization=" + org);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -337,7 +336,7 @@ export default defineComponent({
         throw new Error(`HTTP error! status: ${ress.status}`);
         }
         const records = await ress.json();
-        let recordsToRemove: any[] = []
+        const recordsToRemove: any[] = []
         records.records.forEach((r: any) => {
             recordsToRemove.push(r.id)
         })
@@ -390,14 +389,14 @@ export default defineComponent({
         for (const key of Object.keys(result.data[0])) {
             if (key !== "__id") {
                 const processedKey = processString(key);
-                let ress = await window.grist.docApi.applyUserActions([['AddColumn', selectedTable.value, processedKey, { isFormula: true, type: 'Any', formula: '' }]]);
+                const ress = await window.grist.docApi.applyUserActions([['AddColumn', selectedTable.value, processedKey, { isFormula: true, type: 'Any', formula: '' }]]);
                 await window.grist.docApi.applyUserActions([['AddRecord', "_grist_Views_section_field", null, { parentPos: null, parentId: parentId, colRef: ress.retValues[0].colRef }]]);
             }
         }
         ongoingStep.value = 3
 
         for (let i = 0; i <= nbPages.value; i++) {
-            let calculus = Math.floor((((((i+1) * 100) / nbPages.value) * 5) / 100) + 3)
+            const calculus = Math.floor((((((i+1) * 100) / nbPages.value) * 5) / 100) + 3)
             if (Number.isFinite(calculus)) {
                 ongoingStep.value = calculus
             } else {
@@ -405,12 +404,12 @@ export default defineComponent({
             }
             //ongoingStep.value = Math.floor((((((i+1) * 100) / nbPages.value) * 5) / 100) + 3)
 
-            let response2 = await fetch(`${tabularapiUrl}/api/resources/${id}/data/?page_size=200&page=${i}`);
+            const response2 = await fetch(`${tabularapiUrl}/api/resources/${id}/data/?page_size=200&page=${i}`);
             if (!response2.ok) {
             throw new Error(`HTTP error! status: ${response2.status}`);
             }
-            let result2 = await response2.json();
-            let arr: any = {};
+            const result2 = await response2.json();
+            const arr: any = {};
             result2.data.forEach((item: any) => {
                 for (const key of Object.keys(item)) {
                     const processedKey = processString(key);
@@ -427,7 +426,7 @@ export default defineComponent({
 
             const nullArray = new Array(arr[Object.keys(arr)[0]].length).fill(null);
             try {
-                let records = [["BulkAddRecord", selectedTable.value, nullArray, arr]];
+                const records = [["BulkAddRecord", selectedTable.value, nullArray, arr]];
                 await window.grist.docApi.applyUserActions(records);
             } catch (e: any) {
                 showLoader.value = false;
@@ -442,9 +441,9 @@ export default defineComponent({
     };
 
     const getActiveGristTables = async () => {
-      let activeGristTables = await window.grist.docApi.listTables();
+      const activeGristTables = await window.grist.docApi.listTables();
       store.dispatch('updateActiveGristTables', activeGristTables);
-      let docId = await window.grist.docApi.getDocName();
+      const docId = await window.grist.docApi.getDocName();
       store.dispatch('updateDocId', docId);
     }
 

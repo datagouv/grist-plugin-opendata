@@ -10,7 +10,7 @@ import {
 import type { TableData } from "./types/records";
 import { getTableAsCSV } from "./csv";
 
-import { reactive, ref } from "vue";
+import { reactive } from "vue";
 
 import { useValidationReport } from "./useValidationReport";
 
