@@ -74,14 +74,9 @@ cp .env.dev .env
 
 Et procédez aux adaptations `.env` comme décrit dans les commentaires.
 
-Enfin sourcez le fichier pour charger les variables :
-```bash
-source .env
-```
+Vite charge le fichier `.env` automatiquement, il n'y a rien à sourcer.
 
 ### Compilation et _hot reload_ pour le développement
-
-Après avoir chargé les variables d'environnement:
 
 ```
 pnpm run dev
