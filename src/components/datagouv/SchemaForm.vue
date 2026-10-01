@@ -11,7 +11,7 @@
         </div>
     </div>
 
-    <div v-if="!showLoader">
+    <div v-if="!showLoader && selectedSchema.name">
         🎉 Template importé dans la table {{ selectedTable }}
     </div>
 
