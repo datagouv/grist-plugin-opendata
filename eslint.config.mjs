@@ -15,7 +15,7 @@ import { withVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 export default withVueTs(
   {
     name: 'project/ignores',
-    ignores: ['**/dist/', '**/dist-vite/'],
+    ignores: ['**/dist/'],
   },
   js.configs.recommended,
   pluginVue.configs['flat/essential'],

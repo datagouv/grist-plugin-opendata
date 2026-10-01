@@ -182,7 +182,7 @@ importers:
         specifier: ^5.5.2
         version: 5.7.0
       vue:
-        specifier: ^3.2.13
+        specifier: ^3.5.27
         version: 3.5.43(typescript@5.9.3)
       vue-router:
         specifier: 5.3.1
@@ -212,9 +212,6 @@ importers:
       typescript:
         specifier: ~5.9.3
         version: 5.9.3
-      typescript-eslint:
-        specifier: ^8.70.1
-        version: 8.70.1(eslint@9.39.5(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
       vite:
         specifier: ^8.3.1
         version: 8.3.1(@types/node@26.6.3)(terser@5.51.2)

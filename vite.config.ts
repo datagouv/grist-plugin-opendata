@@ -15,10 +15,15 @@ export default defineConfig({
   css: {
     // @gouvfr/dsfr ships the legacy `@media (min-width: 0\0)` IE hack, which
     // LightningCSS rejects. errorRecovery strips it; modern browsers ignore it.
+    // Scoped to minification on purpose: `css.transformer` stays on the default
+    // `postcss`, so this only reaches `build.cssMinify` (pinned below).
     lightningcss: { errorRecovery: true },
   },
   build: {
     outDir: 'dist',
+    // Pinned rather than inherited: cssMinify selects esbuild or LightningCSS, and
+    // the `errorRecovery` workaround above only applies to the latter.
+    cssMinify: 'lightningcss',
   },
   server: {
     host: '0.0.0.0',

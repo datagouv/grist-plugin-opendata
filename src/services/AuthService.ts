@@ -8,7 +8,7 @@ const api = new OauthAPI();
 export default class AuthService {
   clientId    = CLIENT_ID;
   baseURL     = BASE_URL;
-  redirectURI = `${window.location.origin}/oauth-callback.html`;
+  redirectURI = import.meta.env.VUE_APP_DATAGOUV_REDIRECT_URI ?? `${window.location.origin}/oauth-callback.html`;
 
   async getRedirectURL (): Promise<string> {
     const verifier  = this.randomString();
