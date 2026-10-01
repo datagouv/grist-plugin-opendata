@@ -2,6 +2,7 @@
   "name": "my-grist-app",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "packageManager": "pnpm@12.6.0",
   "scripts": {
     "dev": "vite",
@@ -14,7 +15,6 @@
     "@gouvminint/vue-dsfr": "^8.20.0",
     "@iconify/vue": "^5.0.3",
     "axios": "1.20.0",
-    "core-js": "^3.8.3",
     "papaparse": "^5.5.2",
     "vue": "^3.2.13",
     "vue-router": "5.3.1",
