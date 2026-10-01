@@ -1,10 +1,14 @@
 // Flat config, replacing the `eslintConfig` block that used to live in package.json.
 // Mapping from the old eslintrc config:
+//   eslint:recommended          ->  js.configs.recommended
 //   plugin:vue/vue3-essential  ->  pluginVue.configs['flat/essential']
-//   eslint:recommended          ->  subsumed by vueTsConfigs.recommended, which extends
-//                                   eslintRecommended (eslint:recommended with the core
-//                                   rules TypeScript already covers switched off)
 //   @vue/typescript             ->  vueTsConfigs.recommended + withVueTs() wiring
+//
+// js.configs.recommended is listed explicitly because vueTsConfigs.recommended only
+// *disables* the core rules TypeScript already covers (eslint-recommended); it never
+// enables them. Without this, `no-empty`, `no-prototype-builtins`, `no-useless-escape`
+// and friends go unenforced outside `src/**` (vue-tsc does not cover plain `.js`).
+import js from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
 import { withVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 
@@ -13,6 +17,7 @@ export default withVueTs(
     name: 'project/ignores',
     ignores: ['**/dist/', '**/dist-vite/'],
   },
+  js.configs.recommended,
   pluginVue.configs['flat/essential'],
   vueTsConfigs.recommended,
   {

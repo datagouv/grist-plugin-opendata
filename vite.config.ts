@@ -18,7 +18,7 @@ export default defineConfig({
     lightningcss: { errorRecovery: true },
   },
   build: {
-    outDir: 'dist-vite',
+    outDir: 'dist',
   },
   server: {
     host: '0.0.0.0',

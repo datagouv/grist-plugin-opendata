@@ -95,4 +95,4 @@ pnpm run lint
 
 ### Configuration personnalisée
 
-Voir [la documentation Vue CLI](https://cli.vuejs.org/config/).
+Voir [la documentation Vite](https://vite.dev/config/) et `vite.config.ts`.
