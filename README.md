@@ -88,6 +88,25 @@ pnpm run dev
 pnpm run build
 ```
 
+### Image Docker de production
+
+L'image servie par nginx se construit avec les mêmes variables, passées en
+`--build-arg` :
+
+```bash
+docker build -t grist-plugin-opendata \
+  --build-arg VUE_APP_VALIDATA_URL \
+  --build-arg VUE_APP_DATAGOUV_CLIENT_ID \
+  --build-arg VUE_APP_DATAGOUV_IMPORT_URL \
+  --build-arg VUE_APP_DATAGOUV_TABULAR_API \
+  --build-arg VUE_APP_GRIST_CHEAT_URL \
+  --build-arg VUE_APP_GRIST_URL \
+  --build-arg VUE_APP_DATAGOUV_PUBLISH_URL \
+  .
+```
+
+La construction échoue si une variable lue par le code est absente ou vide.
+
 ### Analyse avec [ESLint](https://eslint.org/)
 ```
 pnpm run lint
