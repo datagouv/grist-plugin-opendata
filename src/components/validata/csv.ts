@@ -9,7 +9,7 @@ export async function getTableAsCSV(
 ): Promise<CsvTable> {
   try {
     return await gristService.fetchCSVData();
-  } catch (err) {
+  } catch {
     return convertTableToCsv(table);
   }
 }

@@ -336,7 +336,7 @@ export default defineComponent({
       return false;
     });
 
-    const datagouvUrl = process.env.VUE_APP_DATAGOUV_PUBLISH_URL as string;
+    const datagouvUrl = import.meta.env.VUE_APP_DATAGOUV_PUBLISH_URL;
 
     let gristUrl = ""
 
@@ -344,10 +344,10 @@ export default defineComponent({
     try {
         gristUrl = res.baseUrl.split("/o/")[0];
     } catch {
-        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+        gristUrl = import.meta.env.VUE_APP_GRIST_URL || '';
     }
     }).catch(() => {
-        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+        gristUrl = import.meta.env.VUE_APP_GRIST_URL || '';
     });
 
     const isPublished = ref(false);

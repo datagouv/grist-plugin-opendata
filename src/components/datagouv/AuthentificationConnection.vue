@@ -13,7 +13,7 @@
   import AuthService from '@/services/AuthService';
   
   const auth = new AuthService();
-  const BASE_URL = process.env.VUE_APP_DATAGOUV_PUBLISH_URL ?? 'https://www.data.gouv.fr';
+  const BASE_URL = import.meta.env.VUE_APP_DATAGOUV_PUBLISH_URL ?? 'https://www.data.gouv.fr';
   
   export default defineComponent({
     name: 'AuthenticationConnection',

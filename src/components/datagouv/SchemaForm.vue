@@ -11,7 +11,7 @@
         </div>
     </div>
 
-    <div v-if="!showLoader && isImported">
+    <div v-if="!showLoader && selectedSchema.name">
         🎉 Template importé dans la table {{ selectedTable }}
     </div>
 
@@ -57,14 +57,22 @@ import { defineComponent, computed, onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import { processString } from '@/utils';
 
+type Schema = {
+  name: string
+  title?: string
+  description?: string
+  schema_url: string
+  [key: string]: unknown
+}
+
 export default defineComponent({
   name: 'PublierForm',
   components: { },
   setup() {
     const store = useStore();
     const selectedTable = ref("")
-    const schemas = ref([])
-    const selectedSchema = ref({})
+    const schemas = ref<Schema[]>([])
+    const selectedSchema = ref<Partial<Schema>>({})
     const showLoader = ref(false)
     const ongoingStep = ref(0)
     let gristUrl = ""
@@ -73,16 +81,16 @@ export default defineComponent({
     try {
         gristUrl = res.baseUrl.split("/o/")[0];
     } catch {
-        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+        gristUrl = import.meta.env.VUE_APP_GRIST_URL || '';
     }
     }).catch(() => {
-        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+        gristUrl = import.meta.env.VUE_APP_GRIST_URL || '';
     });
     
     const getActiveGristTables = async () => {
-      let activeGristTables = await window.grist.docApi.listTables();
+      const activeGristTables = await window.grist.docApi.listTables();
       store.dispatch('updateActiveGristTables', activeGristTables);
-      let docId = await window.grist.docApi.getDocName();
+      const docId = await window.grist.docApi.getDocName();
       store.dispatch('updateDocId', docId);
     }
 
@@ -118,7 +126,7 @@ export default defineComponent({
         throw new Error(`HTTP error! status: ${res4.status}`);
         }
         const records = await res4.json();
-        let recordsToRemove: any[] = []
+        const recordsToRemove: any[] = []
         records.records.forEach((r: any) => {
             recordsToRemove.push(r.id)
         })
@@ -172,7 +180,7 @@ export default defineComponent({
         result.fields.forEach(async (item: { name: string; }) => {
             const processedKey = processString(item.name);
 
-            let ress = await window.grist.docApi.applyUserActions([['AddColumn', selectedTable.value, processedKey, { isFormula: true, type: 'Any', formula: '' }]]);
+            const ress = await window.grist.docApi.applyUserActions([['AddColumn', selectedTable.value, processedKey, { isFormula: true, type: 'Any', formula: '' }]]);
             await window.grist.docApi.applyUserActions([['AddRecord', "_grist_Views_section_field", null, { parentPos: null, parentId: parentId, colRef: ress.retValues[0].colRef }]]);
             cpt += 1
             if (cpt == result.fields.length){

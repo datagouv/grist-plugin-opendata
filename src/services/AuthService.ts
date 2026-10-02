@@ -1,14 +1,14 @@
 import OauthAPI from '@/services/OauthAPI';
 
-const BASE_URL  = process.env.VUE_APP_DATAGOUV_PUBLISH_URL  ?? 'https://www.data.gouv.fr';
-const CLIENT_ID = process.env.VUE_APP_DATAGOUV_CLIENT_ID ?? '';
+const BASE_URL  = import.meta.env.VUE_APP_DATAGOUV_PUBLISH_URL  ?? 'https://www.data.gouv.fr';
+const CLIENT_ID = import.meta.env.VUE_APP_DATAGOUV_CLIENT_ID ?? '';
 
 const api = new OauthAPI();
 
 export default class AuthService {
   clientId    = CLIENT_ID;
   baseURL     = BASE_URL;
-  redirectURI = `${window.location.origin}/oauth-callback.html`;
+  redirectURI = import.meta.env.VUE_APP_DATAGOUV_REDIRECT_URI ?? `${window.location.origin}/oauth-callback.html`;
 
   async getRedirectURL (): Promise<string> {
     const verifier  = this.randomString();

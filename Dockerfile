@@ -12,8 +12,7 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-# Inlined into the bundle at build time by Vue CLI, so they are not read
-# when the container runs.
+# Inlined into the bundle at build time.
 ARG VUE_APP_VALIDATA_URL
 ARG VUE_APP_DATAGOUV_CLIENT_ID
 ARG VUE_APP_DATAGOUV_IMPORT_URL

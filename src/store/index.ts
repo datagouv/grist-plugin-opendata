@@ -45,7 +45,7 @@ const store = createStore<State>({
       commit('setToken', token);
       localStorage.setItem('dg_token', token);
     },
-    updateProfile({ commit, dispatch }, profile) {
+    updateProfile({ commit }, profile) {
       commit('setProfile', profile);
       if (profile?.apikey) commit('setApiKey', profile.apikey);
     },
