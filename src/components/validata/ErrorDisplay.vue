@@ -1,7 +1,7 @@
 <template>
   <div v-if="errors.length > 0">
     <h2>{{ title }}</h2>
-    <div :id="containerId">
+    <div>
       <p v-if="errors.length === 0">Aucune erreur</p>
 
       <dl v-else>
@@ -9,7 +9,7 @@
           <dt>
             <DsfrBadge
               type="warning"
-              :label="'fieldName' in error ? error.fieldName : error.type"
+              :label="error.fieldName || error.type"
               noIcon
             />
           </dt>

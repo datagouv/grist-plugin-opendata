@@ -88,13 +88,13 @@ export default defineComponent({
     try {
         gristUrl = res.baseUrl.split("/o/")[0];
     } catch {
-        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+        gristUrl = import.meta.env.VUE_APP_GRIST_URL || '';
     }
     }).catch(() => {
-        gristUrl = process.env.VUE_APP_GRIST_URL || '';
+        gristUrl = import.meta.env.VUE_APP_GRIST_URL || '';
     });
 
-    const datagouvUrl = process.env.VUE_APP_DATAGOUV_IMPORT_URL ?? ""
+    const datagouvUrl = import.meta.env.VUE_APP_DATAGOUV_IMPORT_URL ?? ""
     const docId: any = ref(null)
     const dataGouvOrganization = ref("")
     const dataGouvOrganizationId = ref("")
@@ -114,7 +114,7 @@ export default defineComponent({
       columns: []
     });
 
-    let mapping: Mapping = {
+    const mapping: Mapping = {
         "Titre": "title",
         "Mots_Cles": "tags",
         "Date_Publication": "created_at",
@@ -136,7 +136,7 @@ export default defineComponent({
         const result = await queryUrl(
             datagouvUrl + "/api/2/organizations/search/?q=" + searchText.value
         )
-        let items: any[] = []
+        const items: any[] = []
         result.data.forEach((item: {
           id: any; name: any;
         }) => {
@@ -161,7 +161,7 @@ export default defineComponent({
 
     const fetchTable = async () => {
         retrievingProcessStep.value = 1
-        let headers = {
+        const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         }
@@ -169,7 +169,7 @@ export default defineComponent({
         // 1 - Regarder si l'orga est présente dans la table orga. Si non, l'ajouter et ajouter son siret
         let url = datagouvUrl + "/api/1/organizations/" + dataGouvOrganizationId.value
         let data = await queryUrl(url)
-        let orgaName = data.name
+        const orgaName = data.name
         let orgaSiret = data.business_number_id
         if (!orgaSiret){
             orgaSiret = ""
@@ -221,22 +221,22 @@ export default defineComponent({
         url = datagouvUrl + "/api/1/organizations/" + dataGouvOrganizationId.value + "/datasets"
 
         while (stillWorking) {
-            let catalog = await queryUrl(url)
-            let arr: { fields: { [key: string]: any; } }[] = [];
+            const catalog = await queryUrl(url)
+            const arr: { fields: { [key: string]: any; } }[] = [];
             catalog.data.forEach((item: { [x: string]: any; }) => {
-                let object: any = {};
-                for (let key in mapping) {
+                const object: any = {};
+                for (const key in mapping) {
                     if (Object.prototype.hasOwnProperty.call(mapping, key)) {
-                        let mappedKey = key as keyof Mapping;
+                        const mappedKey = key as keyof Mapping;
                         if (mappedKey == "Mots_Cles"){
-                            let gristArrFirst = ["L"]
+                            const gristArrFirst = ["L"]
                             object[mappedKey] = [...gristArrFirst, ...item[mapping[mappedKey]]]
                         } else if (mappedKey == "Licence") {
                             object[mappedKey] = licences[item[mapping[mappedKey]]];
                         } else if (mappedKey == "Frequence_MaJ") {
                             object[mappedKey] = frequencies[item[mapping[mappedKey]]];
                         } else if (mappedKey == "Format") {
-                            let formatsList = ["L"]
+                            const formatsList = ["L"]
                             item.resources.forEach((item2: { format: string; }) => {
                                 if (item2.format && formats[item2.format]) {
                                     formatsList.push(formats[item2.format])

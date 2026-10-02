@@ -28,14 +28,12 @@ services:
     volumes:
       - ./src:/app/src
       - ./public:/app/public
-      - ./babel.config.js:/app/babel.config.js
-      - ./vue.config.js:/app/vue.config.js
+      - ./vite.config.ts:/app/vite.config.ts
+      - ./index.html:/app/index.html
       - ./tsconfig.json:/app/tsconfig.json
-      - ./jsconfig.json:/app/jsconfig.json
       - /app/node_modules
     environment:
       - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
     env_file:
       - .env
     networks:

@@ -35,7 +35,7 @@ La manière la plus simple de développer avec ce plugin est d'utiliser Docker :
 
 ```bash
 # 1. Copier le fichier de configuration (première fois uniquement)
-cp env.dev .env
+cp .env.dev .env
 # Puis éditez le fichier .env pour configurer VUE_APP_DATAGOUV_CLIENT_ID si nécessaire
 
 # 2. Lancer Grist + Plugin avec hot-reload
@@ -74,17 +74,12 @@ cp .env.dev .env
 
 Et procédez aux adaptations `.env` comme décrit dans les commentaires.
 
-Enfin sourcez le fichier pour charger les variables :
-```bash
-source .env
-```
+Vite charge le fichier `.env` automatiquement, il n'y a rien à sourcer.
 
 ### Compilation et _hot reload_ pour le développement
 
-Après avoir chargé les variables d'environnement:
-
 ```
-pnpm run serve
+pnpm run dev
 ```
 
 ### Compilation et minification pour la production
@@ -100,4 +95,4 @@ pnpm run lint
 
 ### Configuration personnalisée
 
-Voir [la documentation Vue CLI](https://cli.vuejs.org/config/).
+Voir [la documentation Vite](https://vite.dev/config/) et `vite.config.ts`.
