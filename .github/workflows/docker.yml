@@ -22,7 +22,7 @@ jobs:
 
       - name: Set image version
         id: version
-        run: echo "version=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+        run: echo "version=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
       # The build args are inlined into the bundle by Vite, so an unset one
       # produces a green build and a broken app rather than a failure.
