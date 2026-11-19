@@ -1,6 +1,6 @@
 # Plugin Grist data.gouv.fr
 
-[Grist](https://www.getgrist.com/) est outil permettant de travailler sur des données et de construire des outils métiers avancés.
+[Grist](https://www.getgrist.com/) est un outil permettant de travailler sur des données et de construire des outils métiers avancés.
 
 Les équipes [data.gouv.fr](https://data.gouv.fr/) et [Validata](https://validata.fr/) ont développé un plugin Grist (« widget personnalisé ») permettant :
 
@@ -13,7 +13,7 @@ Les équipes [data.gouv.fr](https://data.gouv.fr/) et [Validata](https://validat
 
 ⚠️ Ce plugin à destination des agents publics est en version _beta_.
 
-Toutes suggestion d'amélioration ou signalements de problèmes sont bienvenus sur [le forum data.gouv.fr](https://forum.data.gouv.fr/) ou au moyen de [tickets sur ce dépôt](https://github.com/datagouv/grist-plugin-opendata/issues).
+Toute suggestion d'amélioration ou signalement de problème est bienvenu sur [le forum data.gouv.fr](https://forum.data.gouv.fr/) ou au moyen de [tickets sur ce dépôt](https://github.com/datagouv/grist-plugin-opendata/issues).
 
 ## Onglet DataGouv
 
